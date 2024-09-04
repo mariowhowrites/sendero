@@ -1,4 +1,4 @@
-defmodule Cyoa.DataCase do
+defmodule Sendero.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule Cyoa.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Cyoa.DataCase, async: true`, although
+  by setting `use Sendero.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -18,17 +18,17 @@ defmodule Cyoa.DataCase do
 
   using do
     quote do
-      alias Cyoa.Repo
+      alias Sendero.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Cyoa.DataCase
+      import Sendero.DataCase
     end
   end
 
   setup tags do
-    Cyoa.DataCase.setup_sandbox(tags)
+    Sendero.DataCase.setup_sandbox(tags)
     :ok
   end
 
@@ -36,7 +36,7 @@ defmodule Cyoa.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Cyoa.Repo, shared: not tags[:async])
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Sendero.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

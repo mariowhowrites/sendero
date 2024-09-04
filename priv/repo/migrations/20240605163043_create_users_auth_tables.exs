@@ -1,4 +1,4 @@
-defmodule Cyoa.Repo.Migrations.CreateUsersAuthTables do
+defmodule Sendero.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do

@@ -7,19 +7,19 @@
 # General application configuration
 import Config
 
-config :cyoa,
-  ecto_repos: [Cyoa.Repo],
+config :sendero,
+  ecto_repos: [Sendero.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :cyoa, CyoaWeb.Endpoint,
+config :sendero, SenderoWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
-    formats: [html: CyoaWeb.ErrorHTML, json: CyoaWeb.ErrorJSON],
+    formats: [html: SenderoWeb.ErrorHTML, json: SenderoWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Cyoa.PubSub,
+  pubsub_server: Sendero.PubSub,
   live_view: [signing_salt: "FnAsSWym"]
 
 # Configures the mailer
@@ -29,7 +29,7 @@ config :cyoa, CyoaWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :cyoa, Cyoa.Mailer, adapter: Swoosh.Adapters.Local
+config :sendero, Sendero.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,

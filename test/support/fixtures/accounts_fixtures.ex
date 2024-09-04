@@ -1,7 +1,7 @@
-defmodule Cyoa.AccountsFixtures do
+defmodule Sendero.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Cyoa.Accounts` context.
+  entities via the `Sendero.Accounts` context.
   """
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
@@ -18,7 +18,7 @@ defmodule Cyoa.AccountsFixtures do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> Cyoa.Accounts.register_user()
+      |> Sendero.Accounts.register_user()
 
     user
   end

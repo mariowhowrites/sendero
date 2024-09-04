@@ -1,0 +1,53 @@
+<.live_component
+  module={SenderoWeb.AdminLive.PrimarySidebar}
+  id="admin-primary-sidebar"
+  story={@story}
+  stories={@stories}
+/>
+
+<.main_section>
+  <.live_component
+    id={@current_chapter.id || "new_chapter"}
+    module={SenderoWeb.ChapterLive.FormComponent}
+    action={@live_action}
+    story={@story}
+    chapter={@current_chapter}
+  />
+</.main_section>
+
+<.secondary_sidebar>
+  <h2 class="text-xl font-semibold mb-8"><%= @story.title %></h2>
+
+  <%!-- <div class="flex flex-col gap-4" phx-update="stream" id="chapters-index">
+    <p class="text-gray-500 only:block hidden">No chapters yet</p>
+    <%= for {dom_id, chapter} <- @streams.chapters do %>
+      <.link id={dom_id} patch={~p"/stories/#{@story.id}/edit/#{chapter.id}"}>
+        <%= chapter.title %>
+      </.link>
+    <% end %>
+  </div> --%>
+  <div class="text-xs font-semibold leading-6 text-gray-400">Chapters</div>
+  <ul role="list" class="-mx-2 my-2 space-y-1">
+    <li class="only:flex hidden group gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600">
+      No chapters yet
+    </li>
+    <%= for {dom_id, chapter} <- @streams.chapters do %>
+      <li id={dom_id}>
+        <!-- Current: "bg-gray-50 text-indigo-600", Default: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50" -->
+        <.link
+          patch={~p"/admin/stories/#{@story.id}/edit/#{chapter.id}"}
+          class={"group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 #{if @current_chapter.id == chapter.id, do: "bg-gray-50 text-indigo-600", else: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"}"}
+        >
+          <span class="truncate"><%= chapter.title %></span>
+        </.link>
+      </li>
+    <% end %>
+  </ul>
+
+  <.link
+    patch={~p"/adminstories/#{@story.id}/edit"}
+    class="bg-blue-500 text-white px-4 py-2 rounded-md"
+  >
+    New Chapter
+  </.link>
+</.secondary_sidebar>

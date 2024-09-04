@@ -8,8 +8,8 @@ const path = require("path")
 module.exports = {
   content: [
     "./js/**/*.js",
-    "../lib/cyoa_web.ex",
-    "../lib/cyoa_web/**/*.*ex"
+    "../lib/sendero_web.ex",
+    "../lib/sendero_web/**/*.*ex"
   ],
   theme: {
     extend: {

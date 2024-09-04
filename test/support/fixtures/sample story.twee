@@ -1,0 +1,44 @@
+:: StoryTitle
+sample story for great learning
+
+
+:: StoryData
+{
+  "ifid": "B85EACA2-E692-488E-9AF0-244B2E156D01",
+  "format": "Harlowe",
+  "format-version": "3.3.9",
+  "start": "Chapter 1",
+  "tag-colors": {
+    "tag1": "orange",
+    "tag2": "purple"
+  },
+  "zoom": 1
+}
+
+
+:: Chapter 1 [tag1] {"position":"700,325","size":"100,100"}
+You see a boar in the woods.
+
+[[run away]]
+
+[[try to pet it]]
+
+
+:: climb a tree {"position":"700,575","size":"100,100"}
+that was kinda mean boars cant climb
+
+
+:: keep running [tag2] {"position":"575,575","size":"100,100"}
+Haha you thought you could outrun a boar and now you are dead
+
+
+:: run away {"position":"637.5,450","size":"100,100"}
+You turn to run. The boar snorts and follows you
+
+[[keep running]]
+
+[[climb a tree]]
+
+
+:: try to pet it [tag1 tag2] {"position":"775,450","size":"100,100"}
+The boar purrs. You are now friends
