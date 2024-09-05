@@ -12,7 +12,7 @@ defmodule SenderoWeb.AdminLive.Index do
   def handle_params(%{"id" => id} = params, _, socket) do
     story = Fiction.get_story!(id)
     chapters = Fiction.get_chapters_by_story(story)
-    stories = Fiction.list_stories()
+    stories = Fiction.stories_by_author(socket.assigns.current_user.id)
 
     current_chapter = case socket.assigns.live_action do
       :new -> %Fiction.Chapter{title: "New Chapter", content: "", status: :draft, root: false, story: story}

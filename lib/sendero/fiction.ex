@@ -38,6 +38,18 @@ defmodule Sendero.Fiction do
   def get_story!(id), do: Repo.get!(Story, id)
 
   @doc """
+  Returns the list of stories by author.
+
+  ## Examples
+
+      iex> stories_by_author(123)
+      [%Story{}, ...]
+  """
+  def stories_by_author(author_id) do
+    Repo.all(from s in Story, where: s.author_id == ^author_id)
+  end
+
+  @doc """
   Creates a story.
 
   ## Examples

@@ -25,10 +25,6 @@ defmodule SenderoWeb.Router do
     live "/stories", StoryLive.Index, :index
     live "/stories/new", StoryLive.Index, :new
     # live "/stories/:id/edit", StoryLive.Index, :edit
-    live "/admin", AdminLive.Index, :home
-    live "/admin/stories/:id/edit", AdminLive.Index, :new
-    live "/admin/stories/:id/edit/:chapter_id", AdminLive.Index, :edit
-    live "/admin/settings", AdminLive.Index, :settings
 
     live "/stories/:id", StoryLive.Show, :show
     live "/stories/:id/show/edit", StoryLive.Show, :edit
@@ -79,6 +75,11 @@ defmodule SenderoWeb.Router do
       on_mount: [{SenderoWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      live "/admin", AdminLive.Index, :home
+      live "/admin/stories/:id/edit", AdminLive.Index, :new
+      live "/admin/stories/:id/edit/:chapter_id", AdminLive.Index, :edit
+      live "/admin/settings", AdminLive.Index, :settings
     end
   end
 

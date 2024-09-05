@@ -54,6 +54,7 @@ defmodule SenderoWeb do
       use Phoenix.LiveView,
         layout: {SenderoWeb.Layouts, :public}
 
+      on_mount SenderoWeb.UserLiveAuth
       unquote(html_helpers())
     end
   end

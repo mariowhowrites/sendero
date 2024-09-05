@@ -17,7 +17,7 @@ defmodule Sendero.Fiction.Story do
   @doc false
   def changeset(story, attrs) do
     story
-    |> cast(attrs, [:title, :description, :metadata])
-    |> validate_required([:title])
+    |> cast(attrs, [:title, :description, :metadata, :author_id])
+    |> validate_required([:title, :author_id])
   end
 end
