@@ -24,7 +24,8 @@ defmodule SenderoWeb.AdminLive.Index do
      |> assign(:story, story)
      |> assign(:stories, stories)
      |> stream(:chapters, chapters)
-     |> assign(:current_chapter, current_chapter)}
+     |> assign(:current_chapter, current_chapter)
+     |> assign(:chapter, current_chapter)}
   end
 
   @impl true

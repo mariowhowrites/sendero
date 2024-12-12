@@ -160,11 +160,10 @@ defmodule Sendero.Fiction do
     |> Repo.insert()
   end
 
-  # let's consider what needs to be done here:
-  # we are receiving a Story struct from our Importer
-  # first, we can write a Story into our DB.
-  # next, we can write each individual Chapter into our DB, without creating any links
-  # then, we can write each Link into our DB by looping over the importer structs and using the `links` property to create links between chapters
+  def get_chapter_links(%Chapter{} = chapter) do
+    Repo.all(from l in Link, where: l.origin_chapter_id == ^chapter.id)
+  end
+
   def import_story_from_twee(path) do
     twee_story = Sendero.Fiction.Importer.Twee.from_path(path)
 

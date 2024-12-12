@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Animals</title>
+  </head>
+  <body>
+    <div id="app">
+      <div style="display: none;">
+        <!-- UUID://6827B2CB-AF71-4BED-8FAA-5894B5A07130// --><tw-storydata name="Animals" startnode="1" creator="Tweego" creator-version="2.1.1+81d1d71" ifid="6827B2CB-AF71-4BED-8FAA-5894B5A07130" zoom="1" format="wintermute" format-version="0.0.1" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="Start" tags="" position="100,100" size="100,100">This is the beginning! How droll!
+
+[[Go somewhere]]</tw-passagedata><tw-passagedata pid="2" name="Go somewhere" tags="" position="225,100" size="100,100">You&#39;ve arrived!</tw-passagedata></tw-storydata>
+      </div>
+
+      <pre id="output"></pre>
+    </div>
+    <script>(function(){"use strict";const i={extractLinksFromText:function(a){var t=a.match(/\[\[.+?\]\]/g);return t?t.map(function(r){var n=r.match(/\[\[(.*?)\-\&gt;(.*?)\]\]/);return n?{name:n[1],link:n[2]}:(r=r.substring(2,r.length-2),{name:r,link:r})}):null},extractPropsFromText:function(a){var t={},r,n=!1;const c=/\{\{((\s|\S)+?)\}\}((\s|\S)+?)\{\{\/\1\}\}/gm;for(;(r=c.exec(a))!==null;){const o=r[1],e=r[3].replace(/(\r\n|\n|\r)/gm,""),s=this.extractPropsFromText(e);s!==null?t[o]=s:t[o]=e,n=!0}return n?t:null},convertPassage:function(a){const t={text:a.innerHTML,links:[],props:{},name:"",pid:"",position:{x:"",y:""},tags:[]},r=i.extractLinksFromText(t.text);r&&(t.links=r);const n=i.extractPropsFromText(t.text);return n&&(t.props=n),["name","pid","position","tags"].forEach(function(o){const e=a.getAttribute(o);if(e)switch(o){case"position":const s=e.split(",");t.position={x:s[0],y:s[1]};break;case"tags":t.tags=e.split(" ");break;default:t[o]=e}}),t},convertStory:function(a){var t=a.getElementsByTagName("tw-passagedata"),r=Array.from(t).map(i.convertPassage),n={passages:r,name:"",startnode:"",creator:"",creatorVersion:"",ifid:""};["name","startnode","creator","creator-version","ifid"].forEach(function(e){var s=a.getAttribute(e);if(s)switch(e){case"creator-version":n.creatorVersion=s;break;default:n[e]=s}});var o={};return n.passages.forEach(function(e){o[e.name]=e.pid}),n.passages.forEach(function(e){e.links&&e.links.forEach(function(s){s.pid=o[s.link],s.pid||(s.broken=!0)})}),n},convert:function(){var a=document.getElementsByTagName("tw-storydata")[0],t=JSON.stringify(i.convertStory(a),null,2);document.getElementById("output").innerHTML=t}};i.convert()})();
+</script>
+  </body>
+</html>
