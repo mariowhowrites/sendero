@@ -6,10 +6,10 @@ defmodule Sendero.Fiction.Story do
   schema "stories" do
     field :description, :string
     field :title, :string
-    field :metadata, :map
+    field :start_node, :string
 
     belongs_to :author, User, foreign_key: :author_id
-    has_many :chapters, Sendero.Fiction.Chapter
+    has_many :passages, Sendero.Fiction.Passage
 
     timestamps(type: :utc_datetime)
   end
@@ -17,7 +17,7 @@ defmodule Sendero.Fiction.Story do
   @doc false
   def changeset(story, attrs) do
     story
-    |> cast(attrs, [:title, :description, :metadata, :author_id])
+    |> cast(attrs, [:title, :description, :start_node, :author_id])
     |> validate_required([:title, :author_id])
   end
 end

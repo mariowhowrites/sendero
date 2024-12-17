@@ -5,7 +5,7 @@ defmodule Sendero.Repo.Migrations.CreateStories do
     create table(:stories) do
       add :title, :string
       add :description, :text
-      add :metadata, :map
+      add :start_node, :string
       add :author_id, references(:users, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)

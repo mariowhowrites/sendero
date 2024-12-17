@@ -1,22 +1,22 @@
 defmodule Sendero.Fiction.Importer.Twee do
   defmodule Story do
     @type t :: %__MODULE__{
-      title: String.t(),
-      metadata: map(),
-      chapters: [map()]
-    }
+            title: String.t(),
+            metadata: map(),
+            passages: [map()]
+          }
 
-    defstruct title: "", metadata: %{}, chapters: []
+    defstruct title: "", metadata: %{}, passages: []
   end
 
-  defmodule Chapter do
+  defmodule Passage do
     @type t :: %__MODULE__{
-      title: String.t(),
-      tags: [String.t()],
-      metadata: map(),
-      content: String.t(),
-      links: [String.t()]
-    }
+            title: String.t(),
+            tags: [String.t()],
+            metadata: map(),
+            content: String.t(),
+            links: [String.t()]
+          }
 
     defstruct title: "", tags: [], metadata: %{}, content: "", links: []
   end
@@ -43,16 +43,16 @@ defmodule Sendero.Fiction.Importer.Twee do
   def parse(text, article) do
     [header | content] = String.split(text, "\n", parts: 2)
 
-    chapter =
-      %Chapter{}
-      |> parse_chapter_header(header)
-      |> parse_chapter_content(content)
+    passage =
+      %Passage{}
+      |> parse_passage_header(header)
+      |> parse_passage_content(content)
 
-    Map.put(article, :chapters, [chapter | article.chapters])
+    Map.put(article, :passages, [passage | article.passages])
   end
 
-  # format of chapter headers is :: title [tags] {metadata}
-  def parse_chapter_header(chapter, header) do
+  # format of passage headers is :: title [tags] {metadata}
+  def parse_passage_header(passage, header) do
     # Extract title, tags, and metadata
     [title_and_tags | metadata_part] = String.split(header, "{", parts: 2)
     [title | tags_part] = String.split(title_and_tags, " [", parts: 2)
@@ -82,8 +82,8 @@ defmodule Sendero.Fiction.Importer.Twee do
           %{}
       end
 
-    # Update and return the chapter map
-    Map.merge(chapter, %{
+    # Update and return the passage map
+    Map.merge(passage, %{
       title: title,
       tags: tags,
       metadata: metadata
@@ -91,7 +91,7 @@ defmodule Sendero.Fiction.Importer.Twee do
   end
 
   # within the text content of `raw_content`, separate out any text surrounded by double brackets ([[ ]])
-  def parse_chapter_content(chapter, raw_content) do
+  def parse_passage_content(passage, raw_content) do
     raw_content = List.to_string(raw_content)
 
     links =
@@ -100,7 +100,7 @@ defmodule Sendero.Fiction.Importer.Twee do
 
     content = Regex.replace(~r/\[\[(.*?)\]\]/, raw_content, "") |> String.trim()
 
-    Map.merge(chapter, %{
+    Map.merge(passage, %{
       content: content,
       links: links
     })

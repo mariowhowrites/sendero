@@ -52,7 +52,8 @@ defmodule SenderoWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {SenderoWeb.Layouts, :public}
+        layout: {SenderoWeb.Layouts, :public},
+        container: {:div, class: "flex-grow flex flex-col"}
 
       on_mount SenderoWeb.UserLiveAuth
       unquote(html_helpers())

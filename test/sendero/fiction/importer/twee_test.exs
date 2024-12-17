@@ -15,7 +15,7 @@ defmodule Sendero.FictionTweeImporterTest do
                "format" => "Harlowe",
                "format-version" => "3.3.9",
                "ifid" => "B85EACA2-E692-488E-9AF0-244B2E156D01",
-               "start" => "Chapter 1",
+               "start" => "Passage 1",
                "tag-colors" => %{
                  "tag1" => "orange",
                  "tag2" => "purple"
@@ -23,7 +23,7 @@ defmodule Sendero.FictionTweeImporterTest do
                "zoom" => 1
              }
 
-      assert length(story.chapters) == 5
+      assert length(story.passages) == 5
     end
 
     test "passages_from_path/1 divides the file into passages" do
@@ -61,7 +61,7 @@ defmodule Sendero.FictionTweeImporterTest do
              }
     end
 
-    test "parse/2 returns chapter data (no links)" do
+    test "parse/2 returns passage data (no links)" do
       text = """
       :: try to pet it [tag1 tag2] {"position":"775,450","size":"100,100"}
       The boar purrs. You are now friends
@@ -69,22 +69,22 @@ defmodule Sendero.FictionTweeImporterTest do
 
       story = Twee.parse(text, %Story{})
 
-      assert length(story.chapters) == 1
-      [chapter] = story.chapters
+      assert length(story.passages) == 1
+      [passage] = story.passages
 
-      assert chapter.title == "try to pet it"
-      assert chapter.tags == ["tag1", "tag2"]
+      assert passage.title == "try to pet it"
+      assert passage.tags == ["tag1", "tag2"]
 
-      assert chapter.metadata == %{
+      assert passage.metadata == %{
                "position" => "775,450",
                "size" => "100,100"
              }
 
-      assert chapter.content == "The boar purrs. You are now friends"
-      assert chapter.links == []
+      assert passage.content == "The boar purrs. You are now friends"
+      assert passage.links == []
     end
 
-    test "parse/2 returns chapter data (with links)" do
+    test "parse/2 returns passage data (with links)" do
       text = """
       :: run away [tag3] {"position":"637.5,450","size":"100,100"}
       You turn to run. The boar snorts and follows you
@@ -96,50 +96,50 @@ defmodule Sendero.FictionTweeImporterTest do
 
       story = Twee.parse(text, %Story{})
 
-      assert length(story.chapters) == 1
-      [chapter] = story.chapters
+      assert length(story.passages) == 1
+      [passage] = story.passages
 
-      assert chapter.title == "run away"
-      assert chapter.tags == ["tag3"]
+      assert passage.title == "run away"
+      assert passage.tags == ["tag3"]
 
-      assert chapter.metadata == %{
+      assert passage.metadata == %{
                "position" => "637.5,450",
                "size" => "100,100"
              }
 
-      assert chapter.content ==
+      assert passage.content ==
                """
                You turn to run. The boar snorts and follows you
                """
                |> String.trim_trailing("\n")
 
-      assert chapter.links == ["keep running", "climb a tree"]
+      assert passage.links == ["keep running", "climb a tree"]
     end
 
     test "parse/2 propely treats tags and metadata as optional" do
-      text = ":: Chapter 1"
+      text = ":: Passage 1"
       story = Twee.parse(text, %Story{})
-      [chapter] = story.chapters
+      [passage] = story.passages
 
-      assert chapter.title == "Chapter 1"
-      assert chapter.tags == []
-      assert chapter.metadata == %{}
+      assert passage.title == "Passage 1"
+      assert passage.tags == []
+      assert passage.metadata == %{}
 
-      text = ":: Chapter 2 [tag1 tag2]"
+      text = ":: Passage 2 [tag1 tag2]"
       story = Twee.parse(text, %Story{})
-      [chapter] = story.chapters
+      [passage] = story.passages
 
-      assert chapter.title == "Chapter 2"
-      assert chapter.tags == ["tag1", "tag2"]
-      assert chapter.metadata == %{}
+      assert passage.title == "Passage 2"
+      assert passage.tags == ["tag1", "tag2"]
+      assert passage.metadata == %{}
 
-      text = ":: Chapter 3 {\"position\":\"775,450\",\"size\":\"100,100\"}"
+      text = ":: Passage 3 {\"position\":\"775,450\",\"size\":\"100,100\"}"
       story = Twee.parse(text, %Story{})
-      [chapter] = story.chapters
+      [passage] = story.passages
 
-      assert chapter.title == "Chapter 3"
-      assert chapter.tags == []
-      assert chapter.metadata == %{"position" => "775,450", "size" => "100,100"}
+      assert passage.title == "Passage 3"
+      assert passage.tags == []
+      assert passage.metadata == %{"position" => "775,450", "size" => "100,100"}
     end
   end
 end

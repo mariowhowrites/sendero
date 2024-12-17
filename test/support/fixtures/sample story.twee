@@ -7,7 +7,7 @@ sample story for great learning
   "ifid": "B85EACA2-E692-488E-9AF0-244B2E156D01",
   "format": "Harlowe",
   "format-version": "3.3.9",
-  "start": "Chapter 1",
+  "start": "Passage 1",
   "tag-colors": {
     "tag1": "orange",
     "tag2": "purple"
@@ -16,7 +16,7 @@ sample story for great learning
 }
 
 
-:: Chapter 1 [tag1] {"position":"700,325","size":"100,100"}
+:: Passage 1 [tag1] {"position":"700,325","size":"100,100"}
 You see a boar in the woods.
 
 [[run away]]

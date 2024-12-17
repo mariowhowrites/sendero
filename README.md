@@ -21,16 +21,16 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 The goal of this project is to create a collaborative choose-your-own-adventure platform.
 
-Authors create stories, each consisting of a number of chapters. 
+Authors create stories, each consisting of a number of passages. 
 
 Stories have `statuses`:
 
-* `active`, meaning the author is currently adding new chapters
-* `complete`, meaning no new chapters will be added and the story is locked in as-is
+* `active`, meaning the author is currently adding new passages
+* `complete`, meaning no new passages will be added and the story is locked in as-is
 
-If a story is active, it has at least one `current_chapter`, meaning the chapter most recently published.
+If a story is active, it has at least one `current_passage`, meaning the passage most recently published.
 
-Each current_chapter has one or more `choices`. There represent the links between chapters.
+Each current_passage has one or more `choices`. There represent the links between passages.
 
-In comp sci terms, we can think of stories as tree structures, with the first chapter as the root node. Each chapter represents one node.
+In comp sci terms, we can think of stories as tree structures, with the first passage as the root node. Each passage represents one node.
 The reading community votes on which links the tree traversal follows.

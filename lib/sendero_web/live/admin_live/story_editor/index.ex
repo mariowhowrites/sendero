@@ -1,18 +1,22 @@
-defmodule SenderoWeb.AdminLive.AdminPages.StoryEdit do
+defmodule SenderoWeb.AdminLive.StoryEditor.Index do
   use SenderoWeb, :live_component
 
   def render(assigns) do
     ~H"""
-    <.main_section>
-      <.live_component
-        id={@current_passage.id || "new_passage"}
-        module={SenderoWeb.PassageLive.FormComponent}
-        action={@live_action}
-        story={@story}
-        passage={@current_passage}
-      />
-    </.main_section>
+    <.live_component
+      id={@current_chapter.id || "new_chapter"}
+      module={SenderoWeb.ChapterLive.FormComponent}
+      action={@live_action}
+      story={@story}
+      chapter={@current_chapter}
+    />
 
+    <.live_component
+      id="link-editor"
+      module={SenderoWeb.AdminLive.LinkEditor}
+      story={@story}
+      chapter={@current_chapter}
+    />
     <.secondary_sidebar>
       <h2 class="text-xl font-semibold mb-8"><%= @story.title %></h2>
 
@@ -43,7 +47,7 @@ defmodule SenderoWeb.AdminLive.AdminPages.StoryEdit do
       </ul>
 
       <.link
-        patch={~p"/admin/stories/#{@story.id}/edit"}
+        patch={~p"/adminstories/#{@story.id}/edit"}
         class="bg-blue-500 text-white px-4 py-2 rounded-md"
       >
         New Passage

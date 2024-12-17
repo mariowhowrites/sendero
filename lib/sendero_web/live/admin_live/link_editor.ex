@@ -8,12 +8,11 @@ defmodule SenderoWeb.AdminLive.LinkEditor do
   end
 
   def update(assigns, socket) do
-    IO.inspect(assigns, label: "ASSIGNS")
-
-    links = case !is_nil(assigns.chapter) and !is_nil(assigns.chapter.id) do
-      false -> []
-      true -> get_chapter_links(assigns.  chapter)
-    end
+    links =
+      case !is_nil(assigns.passage) and !is_nil(assigns.passage.id) do
+        false -> []
+        true -> get_passage_links(assigns.passage)
+      end
 
     {:ok, socket |> assign(assigns) |> assign(:links, links)}
   end
@@ -23,9 +22,9 @@ defmodule SenderoWeb.AdminLive.LinkEditor do
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-          <h1 class="text-base font-semibold leading-6 text-gray-900">Chapter Links</h1>
+          <h1 class="text-base font-semibold leading-6 text-gray-900">Passage Links</h1>
           <p class="mt-2 text-sm text-gray-700">
-            A list of all links associated with this chapter.
+            A list of all links associated with this passage.
           </p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -45,14 +44,17 @@ defmodule SenderoWeb.AdminLive.LinkEditor do
             <table class="min-w-full divide-y divide-gray-300">
               <thead>
                 <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
+                  <th
+                    scope="col"
+                    class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                  >
                     Link Title
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Status
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Linked Chapter
+                    Linked Passage
                   </th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                     <span class="sr-only">Edit</span>
@@ -66,10 +68,10 @@ defmodule SenderoWeb.AdminLive.LinkEditor do
                       <%= link.title %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= link_status(@chapter, link) %>
+                      <%= link_status(@passage, link) %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= linked_chapter_title(@chapter, link) %>
+                      <%= linked_passage_title(@passage, link) %>
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       <a href="#" class="text-indigo-600 hover:text-indigo-900">
@@ -87,19 +89,19 @@ defmodule SenderoWeb.AdminLive.LinkEditor do
     """
   end
 
-  defp get_chapter_links(chapter) do
-    Fiction.get_chapter_links(chapter)
+  defp get_passage_links(passage) do
+    Fiction.get_passage_links(passage)
   end
 
-  defp link_status(chapter, link) do
-    if link.origin_chapter_id == chapter.id, do: "Outgoing", else: "Incoming"
+  defp link_status(passage, link) do
+    if link.origin_passage_id == passage.id, do: "Outgoing", else: "Incoming"
   end
 
-  defp linked_chapter_title(chapter, link) do
-    if link.origin_chapter_id == chapter.id do
-      link.destination_chapter.title
+  defp linked_passage_title(passage, link) do
+    if link.origin_passage_id == passage.id do
+      link.destination_passage.title
     else
-      link.origin_chapter.title
+      link.origin_passage.title
     end
   end
 

@@ -6,7 +6,7 @@ defmodule Sendero.Fiction do
   import Ecto.Query, warn: false
   alias Sendero.Repo
 
-  alias Sendero.Fiction.{Chapter, Link, Story}
+  alias Sendero.Fiction.{Passage, Link, Story}
 
   @doc """
   Returns the list of stories.
@@ -115,43 +115,43 @@ defmodule Sendero.Fiction do
   end
 
   @doc """
-  Gets a single chapter.
+  Gets a single passage.
 
-  Raises `Ecto.NoResultsError` if the Chapter does not exist.
+  Raises `Ecto.NoResultsError` if the Passage does not exist.
 
   ## Examples
 
-      iex> get_chapter!(123)
-      %Chapter{}
+      iex> get_passage!(123)
+      %Passage{}
 
-      iex> get_chapter!(456)
+      iex> get_passage!(456)
       ** (Ecto.NoResultsError)
   """
-  def get_chapter!(id), do: Repo.get!(Chapter, id)
+  def get_passage!(id), do: Repo.get!(Passage, id)
 
-  def get_chapters_by_story(%Story{} = story) do
-    Repo.all(from c in Chapter, where: c.story_id == ^story.id)
+  def get_passages_by_story(%Story{} = story) do
+    Repo.all(from c in Passage, where: c.story_id == ^story.id)
   end
 
-  def create_chapter(%Story{} = story, attrs) do
-    %Chapter{}
-    |> Chapter.changeset(attrs)
+  def create_passage(%Story{} = story, attrs) do
+    %Passage{}
+    |> Passage.changeset(attrs)
     |> Ecto.Changeset.put_assoc(:story, story)
     |> Repo.insert()
   end
 
-  def update_chapter(%Chapter{} = chapter, attrs) do
-    chapter
-    |> Chapter.changeset(attrs)
+  def update_passage(%Passage{} = passage, attrs) do
+    passage
+    |> Passage.changeset(attrs)
     |> Repo.update()
   end
 
-  def change_chapter(%Chapter{} = chapter, attrs \\ %{}) do
-    Chapter.changeset(chapter, attrs)
+  def change_passage(%Passage{} = passage, attrs \\ %{}) do
+    Passage.changeset(passage, attrs)
   end
 
-  def create_root_chapter(%Story{} = story, attrs) do
-    create_chapter(story, Map.merge(attrs, %{root: true}))
+  def create_root_passage(%Story{} = story, attrs) do
+    create_passage(story, Map.merge(attrs, %{root: true}))
   end
 
   def create_link(attrs) do
@@ -160,15 +160,15 @@ defmodule Sendero.Fiction do
     |> Repo.insert()
   end
 
-  def get_chapter_links(%Chapter{} = chapter) do
-    Repo.all(from l in Link, where: l.origin_chapter_id == ^chapter.id)
+  def get_passage_links(%Passage{} = passage) do
+    Repo.all(from l in Link, where: l.origin_passage_id == ^passage.id)
   end
 
   def import_story_from_twee(path) do
     twee_story = Sendero.Fiction.Importer.Twee.from_path(path)
 
     with {:ok, story} <- create_story_from_twee(twee_story),
-         :ok <- create_chapters_and_links(story, twee_story.chapters) do
+         :ok <- create_passages_and_links(story, twee_story.passages) do
       {:ok, story}
     end
   end
@@ -180,44 +180,44 @@ defmodule Sendero.Fiction do
     })
   end
 
-  defp create_chapters_and_links(story, chapters) do
-    chapters
-    |> Enum.map(&create_chapter_from_twee(story, &1))
-    |> Enum.each(&create_links_for_chapter/1)
+  defp create_passages_and_links(story, passages) do
+    passages
+    |> Enum.map(&create_passage_from_twee(story, &1))
+    |> Enum.each(&create_links_for_passage/1)
 
     :ok
   end
 
-  defp create_chapter_from_twee(story, raw_chapter) do
-    {:ok, chapter} =
-      create_chapter(story, %{
-        title: raw_chapter.title,
-        content: raw_chapter.content,
-        root: raw_chapter.title == story.metadata["start"],
+  defp create_passage_from_twee(story, raw_passage) do
+    {:ok, passage} =
+      create_passage(story, %{
+        title: raw_passage.title,
+        content: raw_passage.content,
+        root: raw_passage.title == story.metadata["start"],
         status: :draft,
         story_id: story.id
       })
 
-    {chapter, raw_chapter}
+    {passage, raw_passage}
   end
 
-  defp create_links_for_chapter({chapter, raw_chapter}) do
-    Enum.each(raw_chapter.links, fn link ->
-      destination_chapter = find_destination_chapter(link)
-      create_link_between_chapters(chapter, destination_chapter, link)
+  defp create_links_for_passage({passage, raw_passage}) do
+    Enum.each(raw_passage.links, fn link ->
+      destination_passage = find_destination_passage(link)
+      create_link_between_passages(passage, destination_passage, link)
     end)
   end
 
-  defp find_destination_chapter(link) do
-    Repo.one(from c in Chapter, where: c.title == ^link)
+  defp find_destination_passage(link) do
+    Repo.one(from c in Passage, where: c.title == ^link)
   end
 
-  defp create_link_between_chapters(origin, destination, link) do
+  defp create_link_between_passages(origin, destination, link) do
     create_link(%{
       title: link,
       content: link,
-      origin_chapter_id: origin.id,
-      destination_chapter_id: destination.id
+      origin_passage_id: origin.id,
+      destination_passage_id: destination.id
     })
   end
 end

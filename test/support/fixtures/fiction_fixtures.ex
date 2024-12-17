@@ -19,7 +19,7 @@ defmodule Sendero.FictionFixtures do
     story
   end
 
-  def chapter_fixture(attrs \\ %{}) do
+  def passage_fixture(attrs \\ %{}) do
     # if attrs[:story_id] is not set, create a story
 
     story =
@@ -28,7 +28,7 @@ defmodule Sendero.FictionFixtures do
         _ -> Sendero.Fiction.get_story!(attrs[:story_id])
       end
 
-    chapter =
+    passage =
       attrs
       |> Enum.into(%{
         content: "some content",
@@ -37,22 +37,22 @@ defmodule Sendero.FictionFixtures do
         story_id: story.id
       })
 
-    {:ok, chapter} = Sendero.Fiction.add_root_chapter(story, chapter)
+    {:ok, passage} = Sendero.Fiction.add_root_passage(story, passage)
 
-    chapter
+    passage
   end
 
   def link_fixture(attrs \\ %{}) do
-    origin_chapter =
-      case attrs[:origin_chapter_id] do
-        nil -> chapter_fixture()
-        _ -> Sendero.Fiction.get_chapter!(attrs[:origin_chapter_id])
+    origin_passage =
+      case attrs[:origin_passage_id] do
+        nil -> passage_fixture()
+        _ -> Sendero.Fiction.get_passage!(attrs[:origin_passage_id])
       end
 
-    destination_chapter =
-      case attrs[:destination_chapter_id] do
-        nil -> chapter_fixture()
-        _ -> Sendero.Fiction.get_chapter!(attrs[:destination_chapter_id])
+    destination_passage =
+      case attrs[:destination_passage_id] do
+        nil -> passage_fixture()
+        _ -> Sendero.Fiction.get_passage!(attrs[:destination_passage_id])
       end
 
     link =
@@ -60,11 +60,11 @@ defmodule Sendero.FictionFixtures do
       |> Enum.into(%{
         title: "some title",
         content: "some content",
-        origin_chapter_id: origin_chapter.id,
-        destination_chapter_id: destination_chapter.id
+        origin_passage_id: origin_passage.id,
+        destination_passage_id: destination_passage.id
       })
 
-    {:ok, link} = Sendero.Fiction.add_destination_link(origin_chapter, link)
+    {:ok, link} = Sendero.Fiction.add_destination_link(origin_passage, link)
 
     link
   end

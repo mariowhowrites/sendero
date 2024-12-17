@@ -76,9 +76,8 @@ defmodule SenderoWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      live "/admin", AdminLive.Index, :home
-      live "/admin/stories/:id/edit", AdminLive.Index, :new
-      live "/admin/stories/:id/edit/:chapter_id", AdminLive.Index, :edit
+      live "/admin", AdminLive.Index, :dashboard
+      live "/admin/stories/:id", AdminLive.Index, :story_editor
       live "/admin/settings", AdminLive.Index, :settings
     end
   end

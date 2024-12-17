@@ -204,7 +204,7 @@ defmodule SenderoWeb.AdminLive.PrimarySidebar do
           <img
             class="h-8 w-auto"
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-            alt="Your Company"
+            alt="Sendero"
           />
         </div>
         <nav class="flex flex-1 flex-col">

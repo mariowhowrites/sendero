@@ -1,4 +1,4 @@
-defmodule SenderoWeb.ChapterLive.FormComponent do
+defmodule SenderoWeb.PassageLive.FormComponent do
   use SenderoWeb, :live_component
 
   alias Sendero.Fiction
@@ -8,23 +8,28 @@ defmodule SenderoWeb.ChapterLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @chapter.title %>
-        <:subtitle>Use this form to manage chapter records in your database.</:subtitle>
+        <%= @passage.title %>
+        <:subtitle>Use this form to manage passage records in your database.</:subtitle>
       </.header>
 
       <.simple_form
         for={@form}
-        id="chapter-form"
+        id="passage-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
       >
         <.input field={@form[:title]} type="text" label="Title" />
         <.input field={@form[:content]} type="textarea" label="Content" />
-        <.input field={@form[:status]} type="select" label="Status" options={["draft", "active", "inactive"]} />
+        <.input
+          field={@form[:status]}
+          type="select"
+          label="Status"
+          options={["draft", "active", "inactive"]}
+        />
         <.input field={@form[:root]} type="checkbox" label="Root" />
         <:actions>
-          <.button phx-disable-with="Saving...">Save Chapter</.button>
+          <.button phx-disable-with="Saving...">Save Passage</.button>
         </:actions>
       </.simple_form>
     </div>
@@ -32,8 +37,8 @@ defmodule SenderoWeb.ChapterLive.FormComponent do
   end
 
   @impl true
-  def update(%{chapter: chapter} = assigns, socket) do
-    changeset = Fiction.change_chapter(chapter)
+  def update(%{passage: passage} = assigns, socket) do
+    changeset = Fiction.change_passage(passage)
 
     {:ok,
      socket
@@ -42,22 +47,22 @@ defmodule SenderoWeb.ChapterLive.FormComponent do
   end
 
   @impl true
-  def handle_event("validate", %{"chapter" => chapter_params}, socket) do
+  def handle_event("validate", %{"passage" => passage_params}, socket) do
     changeset =
-      socket.assigns.chapter
-      |> Fiction.change_chapter(chapter_params)
+      socket.assigns.passage
+      |> Fiction.change_passage(passage_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
   end
 
-  def handle_event("save", %{"chapter" => chapter_params}, socket) do
-    save_chapter(socket, socket.assigns.action, chapter_params)
+  def handle_event("save", %{"passage" => passage_params}, socket) do
+    save_passage(socket, socket.assigns.action, passage_params)
   end
 
-  defp save_chapter(socket, :edit, chapter_params) do
-    case Fiction.update_chapter(socket.assigns.chapter, chapter_params) do
-      {:ok, _chapter} ->
+  defp save_passage(socket, :edit, passage_params) do
+    case Fiction.update_passage(socket.assigns.passage, passage_params) do
+      {:ok, _passage} ->
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -65,10 +70,10 @@ defmodule SenderoWeb.ChapterLive.FormComponent do
     end
   end
 
-  defp save_chapter(socket, :new, chapter_params) do
-    case Fiction.create_chapter(socket.assigns.story, chapter_params) do
-      {:ok, chapter} ->
-        notify_parent({:created, chapter})
+  defp save_passage(socket, :new, passage_params) do
+    case Fiction.create_passage(socket.assigns.story, passage_params) do
+      {:ok, passage} ->
+        notify_parent({:created, passage})
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->

@@ -1,8 +1,8 @@
-defmodule Sendero.Repo.Migrations.CreateChapters do
+defmodule Sendero.Repo.Migrations.CreatePassages do
   use Ecto.Migration
 
   def change do
-    create table(:chapters) do
+    create table(:passages) do
       add :title, :string
       add :content, :text
       add :status, :string
@@ -12,6 +12,6 @@ defmodule Sendero.Repo.Migrations.CreateChapters do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:chapters, [:story_id])
+    create index(:passages, [:story_id])
   end
 end

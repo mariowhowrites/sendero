@@ -13,11 +13,16 @@
   <:item title="Description"><%= @story.description %></:item>
 </.list>
 
-<h1>Chapters</h1>
+<h1>Passages</h1>
 
 <.back navigate={~p"/stories"}>Back to stories</.back>
 
-<.modal :if={@live_action == :edit} id="story-modal" show on_cancel={JS.patch(~p"/stories/#{@story}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="story-modal"
+  show
+  on_cancel={JS.patch(~p"/stories/#{@story}")}
+>
   <.live_component
     module={SenderoWeb.StoryLive.FormComponent}
     id={@story.id}

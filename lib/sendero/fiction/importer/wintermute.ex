@@ -2,6 +2,7 @@ defmodule Sendero.Fiction.Importer.Wintermute do
   @moduledoc """
   Imports Wintermute-formatted HTML files into Sendero's internal format.
   """
+alias Sendero.Fiction
 
   @doc """
   Imports a Wintermute HTML file from the given path.
@@ -9,12 +10,26 @@ defmodule Sendero.Fiction.Importer.Wintermute do
   def import(path) do
     with {:ok, html} <- File.read(path),
          {:ok, document} <- Floki.parse_document(html),
-         {:ok, story_data} <- extract_story_data(document),
+         {:ok, story} <- parse_story_from_document(document) do
+      # write story data to db
+
+      Fiction.create_story(%{
+        title: story.story.name,
+        start_node: story.story.start_node,
+        author_id: story.story.creator
+      })
+    end
+  end
+
+  def parse_story_from_document(document) do
+    with {:ok, story_data} <- extract_story_data(document),
          {:ok, passages} <- extract_passages(document) do
       {:ok, %{
         story: story_data,
         passages: passages
       }}
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 
