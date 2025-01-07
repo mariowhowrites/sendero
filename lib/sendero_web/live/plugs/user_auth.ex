@@ -1,6 +1,5 @@
 defmodule SenderoWeb.UserLiveAuth do
   import Phoenix.Component
-  import Phoenix.LiveView
   # from `mix phx.gen.auth`
   alias Sendero.Accounts
 

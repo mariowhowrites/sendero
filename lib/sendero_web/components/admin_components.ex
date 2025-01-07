@@ -5,8 +5,8 @@ defmodule SenderoWeb.AdminComponents do
 
   def main_section(assigns) do
     ~H"""
-    <section class="lg:pl-72">
-      <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
+    <section class="lg:pl-72 flex-grow flex flex-col">
+      <div class="flex-grow">
         <%= render_slot(@inner_block) %>
       </div>
     </section>

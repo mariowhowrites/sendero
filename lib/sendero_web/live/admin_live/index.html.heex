@@ -8,7 +8,12 @@
 <.main_section>
   <%= case @live_action do %>
     <% :dashboard -> %>
-      <h1>Dashboard</h1>
+      <.live_component
+        module={SenderoWeb.DragAndDropEditorLive}
+        id="drag-and-drop-editor"
+        left={48}
+        top={48}
+      />
     <% :story_editor -> %>
       <.live_component
         module={SenderoWeb.AdminLive.StoryEditor.Index}
