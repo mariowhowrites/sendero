@@ -5,7 +5,7 @@ defmodule Sendero.Fiction.Passage do
 
   schema "passages" do
     field :status, Ecto.Enum, values: [:draft, :active, :inactive]
-    field :title, :string
+    field :name, :string
     field :content, :string
     field :root, :boolean
     belongs_to :story, Story
@@ -18,7 +18,7 @@ defmodule Sendero.Fiction.Passage do
   @doc false
   def changeset(passage, attrs) do
     passage
-    |> cast(attrs, [:title, :content, :status, :root])
-    |> validate_required([:title, :content, :status])
+    |> cast(attrs, [:name, :content, :status, :root])
+    |> validate_required([:name, :content, :status])
   end
 end

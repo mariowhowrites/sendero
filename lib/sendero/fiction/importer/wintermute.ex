@@ -2,32 +2,40 @@ defmodule Sendero.Fiction.Importer.Wintermute do
   @moduledoc """
   Imports Wintermute-formatted HTML files into Sendero's internal format.
   """
-alias Sendero.Fiction
+  alias Sendero.Fiction
 
   @doc """
   Imports a Wintermute HTML file from the given path.
   """
-  def import(path) do
+  def import_from_path(path, user_id) do
     with {:ok, html} <- File.read(path),
-         {:ok, document} <- Floki.parse_document(html),
-         {:ok, story} <- parse_story_from_document(document) do
-      # write story data to db
+         {:ok, story} <- import_from_html(html, user_id) do
+      story
+    end
+  end
 
-      Fiction.create_story(%{
-        title: story.story.name,
-        start_node: story.story.start_node,
-        author_id: story.story.creator
-      })
+  def import_from_html(html, user_id) do
+    with {:ok, document} <- Floki.parse_document(html),
+         {:ok, story_content} <- parse_story_from_document(document),
+         {:ok, story} <-
+           Fiction.create_story(%{
+             title: story_content.story.name,
+             start_node: story_content.story.start_node,
+             author_id: user_id
+           }),
+         :ok <- Fiction.create_passages_and_links(story, story_content.passages) do
+      {:ok, story}
     end
   end
 
   def parse_story_from_document(document) do
     with {:ok, story_data} <- extract_story_data(document),
          {:ok, passages} <- extract_passages(document) do
-      {:ok, %{
-        story: story_data,
-        passages: passages
-      }}
+      {:ok,
+       %{
+         story: story_data,
+         passages: passages
+       }}
     else
       {:error, reason} -> {:error, reason}
     end
@@ -94,8 +102,14 @@ alias Sendero.Fiction
         %{x: 0, y: 0}
 
       position ->
-        [x, y] = String.split(position, ",", trim: true)
-        %{x: String.to_integer(x), y: String.to_integer(y)}
+        [x, y] =
+          String.split(position, ",", trim: true)
+          |> Enum.map(fn pos ->
+            {int, _remainder} = Integer.parse(pos)
+            int
+          end)
+
+        %{x: x, y: y}
     end
   end
 

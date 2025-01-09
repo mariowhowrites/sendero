@@ -154,6 +154,18 @@ defmodule Sendero.Fiction do
     create_passage(story, Map.merge(attrs, %{root: true}))
   end
 
+  def get_root_passage(story_id) do
+    Repo.one(from p in Passage, where: p.story_id == ^story_id and p.root == true)
+  end
+
+  def get_passages_by_story_id(story_id) do
+    Repo.all(from p in Passage, where: p.story_id == ^story_id)
+  end
+
+  def get_passage_by_link_text(story_id, link_text) do
+    Repo.one(from p in Passage, where: p.story_id == ^story_id and p.name == ^link_text)
+  end
+
   def create_link(attrs) do
     %Link{}
     |> Link.changeset(attrs)
@@ -180,7 +192,7 @@ defmodule Sendero.Fiction do
     })
   end
 
-  defp create_passages_and_links(story, passages) do
+  def create_passages_and_links(story, passages) do
     passages
     |> Enum.map(&create_passage_from_twee(story, &1))
     |> Enum.each(&create_links_for_passage/1)
@@ -191,9 +203,9 @@ defmodule Sendero.Fiction do
   defp create_passage_from_twee(story, raw_passage) do
     {:ok, passage} =
       create_passage(story, %{
-        title: raw_passage.title,
+        name: raw_passage.name,
         content: raw_passage.content,
-        root: raw_passage.title == story.metadata["start"],
+        root: raw_passage.pid == story.start_node,
         status: :draft,
         story_id: story.id
       })
@@ -209,7 +221,7 @@ defmodule Sendero.Fiction do
   end
 
   defp find_destination_passage(link) do
-    Repo.one(from c in Passage, where: c.title == ^link)
+    Repo.one(from p in Passage, where: p.name == ^link)
   end
 
   defp create_link_between_passages(origin, destination, link) do
