@@ -33,8 +33,14 @@ defmodule SenderoWeb.StoryLive.Show do
         |> String.replace(~r/[\[\]]/, "")
         |> String.trim()
 
+      {display, target} =
+        case String.split(link_text, "->", parts: 2) do
+          [display, target] -> {String.trim(display), String.trim(target)}
+          [text] -> {String.trim(text), String.trim(text)}
+        end
+
       # Create a regular HTML link
-      ~s(<a class="text-blue-500 underline"href="#" phx-click="choose-passage" phx-value-text="#{link_text}">#{link_text}</a>)
+      ~s(<a class="text-blue-500 underline" href="#" phx-click="choose-passage" phx-value-text="#{target}">#{display}</a>)
     end)
   end
 
@@ -44,11 +50,18 @@ defmodule SenderoWeb.StoryLive.Show do
   def handle_event("choose-passage", %{"text" => link_text}, socket) do
     new_passage = Fiction.get_passage_by_link_text(socket.assigns.story.id, link_text)
 
-    {:noreply, socket |> assign(:history, [socket.assigns.current_passage | socket.assigns.history]) |> assign(:current_passage, parse_passage(new_passage))}
+    {:noreply,
+     socket
+     |> assign(:history, [socket.assigns.current_passage | socket.assigns.history])
+     |> assign(:current_passage, parse_passage(new_passage))}
   end
 
   def handle_event("back", _, socket) do
     [new_current | new_history] = socket.assigns.history
-    {:noreply, socket |> assign(:current_passage, parse_passage(new_current)) |> assign(:history, new_history)}
+
+    {:noreply,
+     socket
+     |> assign(:current_passage, parse_passage(new_current))
+     |> assign(:history, new_history)}
   end
 end

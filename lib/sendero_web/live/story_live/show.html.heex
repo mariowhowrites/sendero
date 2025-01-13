@@ -1,7 +1,9 @@
 <h1><%= @story.title %></h1>
 
 <%= if length(@history) > 0 do %>
-    <a class="text-blue-500 mb-4 underline" href="#" phx-click="back">Back</a>
+  <div class="mb-4">
+    <a class="text-blue-500 underline" href="#" phx-click="back">Back</a>
+  </div>
 <% end %>
 
 <%= @current_passage.content |> raw() %>

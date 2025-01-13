@@ -16,24 +16,17 @@ defmodule Sendero.Fiction.Importer.Wintermute do
 
   def import_from_html(html, user_id) do
     with {:ok, document} <- Floki.parse_document(html),
-         {:ok, story_content} <- parse_story_from_document(document),
-         {:ok, story} <-
-           Fiction.create_story(%{
-             title: story_content.story.name,
-             start_node: story_content.story.start_node,
-             author_id: user_id
-           }),
-         :ok <- Fiction.create_passages_and_links(story, story_content.passages) do
-      {:ok, story}
+         {:ok, story_content} <- parse_story_from_document(document, user_id) do
+      Fiction.create_story_with_passages(story_content.story, story_content.passages)
     end
   end
 
-  def parse_story_from_document(document) do
+  def parse_story_from_document(document, user_id) do
     with {:ok, story_data} <- extract_story_data(document),
          {:ok, passages} <- extract_passages(document) do
       {:ok,
        %{
-         story: story_data,
+         story: Map.put(story_data, :author_id, user_id),
          passages: passages
        }}
     else
@@ -47,7 +40,7 @@ defmodule Sendero.Fiction.Importer.Wintermute do
         {_tag, attributes, _children} = story_element
 
         story_data = %{
-          name: find_attribute(attributes, "name"),
+          title: find_attribute(attributes, "name"),
           start_node: find_attribute(attributes, "startnode"),
           creator: find_attribute(attributes, "creator"),
           creator_version: find_attribute(attributes, "creator-version"),
@@ -113,9 +106,16 @@ defmodule Sendero.Fiction.Importer.Wintermute do
     end
   end
 
+  # returns a list of tuples of structure {link_display_text, target_passage_name}
   defp extract_links(content) do
     ~r/\[\[([^\]]+)\]\]/
     |> Regex.scan(content)
-    |> Enum.map(fn [_full_match, link_text] -> link_text end)
+    |> Enum.map(fn [_full_match, link_text] ->
+      # we need to handle both [[display->target]] and [[target]] links here, so split on "->" and see how many parts we have
+      case String.split(link_text, "->", parts: 2) do
+        [display, target] -> {String.trim(display), String.trim(target)}
+        [text] -> {String.trim(text), String.trim(text)}
+      end
+    end)
   end
 end
