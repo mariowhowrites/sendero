@@ -3,7 +3,7 @@ defmodule Sendero.Repo.Migrations.CreatePassages do
 
   def change do
     create table(:passages) do
-      add :title, :string
+      add :name, :string
       add :content, :text
       add :status, :string
       add :root, :boolean, default: false

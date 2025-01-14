@@ -19,6 +19,18 @@ defmodule Sendero.FictionFixtures do
     story
   end
 
+  def user_fixture(attrs \\ %{}) do
+    {:ok, user} =
+      attrs
+      |> Enum.into(%{
+        email: "user@example.com",
+        password: "coolpassword123"
+      })
+      |> Sendero.Accounts.register_user()
+
+    user
+  end
+
   def passage_fixture(attrs \\ %{}) do
     # if attrs[:story_id] is not set, create a story
 

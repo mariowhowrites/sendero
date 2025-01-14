@@ -17,7 +17,7 @@ defmodule SenderoWeb.StoryLive.Edit do
       case socket.assigns.live_action do
         :new ->
           %Fiction.Passage{
-            title: "New Passage",
+            name: "New Passage",
             content: "",
             status: :draft,
             root: false,

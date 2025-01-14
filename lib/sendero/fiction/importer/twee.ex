@@ -11,14 +11,14 @@ defmodule Sendero.Fiction.Importer.Twee do
 
   defmodule Passage do
     @type t :: %__MODULE__{
-            title: String.t(),
+            name: String.t(),
             tags: [String.t()],
             metadata: map(),
             content: String.t(),
             links: [String.t()]
           }
 
-    defstruct title: "", tags: [], metadata: %{}, content: "", links: []
+    defstruct name: "", tags: [], metadata: %{}, content: "", links: []
   end
 
   @spec from_path(Path.t()) :: Story.t()
@@ -51,12 +51,12 @@ defmodule Sendero.Fiction.Importer.Twee do
     Map.put(article, :passages, [passage | article.passages])
   end
 
-  # format of passage headers is :: title [tags] {metadata}
+  # format of passage headers is :: name [tags] {metadata}
   def parse_passage_header(passage, header) do
-    # Extract title, tags, and metadata
-    [title_and_tags | metadata_part] = String.split(header, "{", parts: 2)
-    [title | tags_part] = String.split(title_and_tags, " [", parts: 2)
-    title = String.trim_leading(title, ":: ") |> String.trim()
+    # Extract name, tags, and metadata
+    [name_and_tags | metadata_part] = String.split(header, "{", parts: 2)
+    [name | tags_part] = String.split(name_and_tags, " [", parts: 2)
+    name = String.trim_leading(name, ":: ") |> String.trim()
 
     # Process tags
     tags =
@@ -84,7 +84,7 @@ defmodule Sendero.Fiction.Importer.Twee do
 
     # Update and return the passage map
     Map.merge(passage, %{
-      title: title,
+      name: name,
       tags: tags,
       metadata: metadata
     })

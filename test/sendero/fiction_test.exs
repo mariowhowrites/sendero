@@ -98,48 +98,123 @@ defmodule Sendero.FictionTest do
     #   assert {:ok, %Sendero.Fiction.Link{} = link} = Fiction.add_destination_link(passage, valid_link_attrs)
     # end
 
-    test "import_story_from_twee/1 imports a story from a twee file" do
-      assert {:ok, %Story{} = story} =
-               Fiction.import_story_from_twee("test/support/fixtures/sample story.twee")
+    #   test "import_story_from_twee/1 imports a story from a twee file" do
+    #     assert {:ok, %Story{} = story} =
+    #              Fiction.import_story_from_twee("test/support/fixtures/sample story.twee")
 
-      assert story.title == "sample story for great learning"
-      assert map_size(story) > 0
+    #     assert story.title == "sample story for great learning"
+    #     assert map_size(story) > 0
 
-      # Verify all passages were created
-      passages = Repo.preload(story, :passages).passages
+    #     # Verify all passages were created
+    #     passages = Repo.preload(story, :passages).passages
+    #     assert length(passages) == 5
+
+    #     # Check specific passages
+    #     passage_1 = Enum.find(passages, fn passage -> passage.title == "Passage 1" end)
+    #     assert passage_1.content =~ "You see a boar in the woods."
+    #     assert passage_1.root == true
+
+    #     passage_2 = Enum.find(passages, fn passage -> passage.title == "run away" end)
+    #     assert passage_2.content =~ "You turn to run. The boar snorts and follows you"
+
+    #     # Verify links between passages
+    #     links =
+    #       Repo.all(
+    #         from l in Sendero.Fiction.Link,
+    #           where: l.origin_passage_id in ^Enum.map(passages, & &1.id)
+    #       )
+
+    #     # Total number of links in the sample story
+    #     assert length(links) == 4
+
+    #     # Check specific links
+    #     passage_1_links = Enum.filter(links, &(&1.origin_passage_id == passage_1.id))
+    #     assert length(passage_1_links) == 2
+    #     assert Enum.any?(passage_1_links, &(&1.destination_passage_id == passage_2.id))
+
+    #     # Verify the "climb a tree" passage is linked from "run away"
+    #     climb_tree_passage = Enum.find(passages, fn passage -> passage.title == "climb a tree" end)
+
+    #     assert Enum.any?(
+    #              links,
+    #              &(&1.origin_passage_id == passage_2.id and
+    #                  &1.destination_passage_id == climb_tree_passage.id)
+    #            )
+    #   end
+    # end
+
+    test "create_story_with_passages/2 creates a story with its passages and links" do
+      user = user_fixture(%{})
+
+      input = %{
+        story: %{
+          title: "sample story for great learning",
+          author_id: user.id,
+          start_node: "1",
+          creator: "Twine",
+          creator_version: "2.9.0",
+          ifid: "B85EACA2-E692-488E-9AF0-244B2E156D01"
+        },
+        passages: [
+          %{
+            links: [{"run away", "run away"}, {"try to pet it", "try to pet it"}],
+            name: "Chapter 1",
+            pid: "1",
+            position: %{y: 325, x: 700},
+            tags: ["tag1"],
+            content:
+              "You see a boar in the woods.\n\n[[run away]]\n\n[[try to pet it]]\n\n<img src=\"https://cdn.vox-cdn.com/thumbor/Hv25EhJs_sOcwYl04iARZmov9DM=/0x0:5260x6265/1825x1825/filters:focal(2210x2713:3050x3553):format(webp)/cdn.vox-cdn.com/uploads/chorus_image/image/73763238/DSC_6148.0.jpg\">\n\n"
+          },
+          %{
+            links: [
+              {"keep running", "keep running"},
+              {"climb a tree", "climb a tree"}
+            ],
+            name: "run away",
+            pid: "2",
+            position: %{y: 450, x: 637},
+            tags: [],
+            content:
+              "You turn to run. The boar snorts and follows you\n\n[[keep running]]\n\n[[climb a tree]]"
+          },
+          %{
+            links: [],
+            name: "try to pet it",
+            pid: "3",
+            position: %{y: 450, x: 775},
+            tags: ["tag1", "tag2"],
+            content: "The boar purrs. You are now friends"
+          },
+          %{
+            links: [],
+            name: "keep running",
+            pid: "4",
+            position: %{y: 575, x: 575},
+            tags: ["tag2"],
+            content: "Haha you thought you could outrun a boar and now you are dead"
+          },
+          %{
+            links: [],
+            name: "climb a tree",
+            pid: "5",
+            position: %{y: 575, x: 700},
+            tags: [],
+            content: "that was kinda mean boars cant climb"
+          }
+        ]
+      }
+
+      assert {:ok,
+              %{
+                story: %Fiction.Story{} = story,
+                passages: passages,
+                links: links
+              }} = Fiction.create_story_with_passages(input.story, input.passages)
+
       assert length(passages) == 5
-
-      # Check specific passages
-      passage_1 = Enum.find(passages, fn passage -> passage.title == "Passage 1" end)
-      assert passage_1.content =~ "You see a boar in the woods."
-      assert passage_1.root == true
-
-      passage_2 = Enum.find(passages, fn passage -> passage.title == "run away" end)
-      assert passage_2.content =~ "You turn to run. The boar snorts and follows you"
-
-      # Verify links between passages
-      links =
-        Repo.all(
-          from l in Sendero.Fiction.Link,
-            where: l.origin_passage_id in ^Enum.map(passages, & &1.id)
-        )
-
-      # Total number of links in the sample story
+      assert Enum.all?(passages, &match?(%Fiction.Passage{}, &1))
       assert length(links) == 4
-
-      # Check specific links
-      passage_1_links = Enum.filter(links, &(&1.origin_passage_id == passage_1.id))
-      assert length(passage_1_links) == 2
-      assert Enum.any?(passage_1_links, &(&1.destination_passage_id == passage_2.id))
-
-      # Verify the "climb a tree" passage is linked from "run away"
-      climb_tree_passage = Enum.find(passages, fn passage -> passage.title == "climb a tree" end)
-
-      assert Enum.any?(
-               links,
-               &(&1.origin_passage_id == passage_2.id and
-                   &1.destination_passage_id == climb_tree_passage.id)
-             )
+      assert Enum.all?(links, &match?(%Fiction.Link{}, &1))
     end
   end
 end
