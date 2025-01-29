@@ -33,7 +33,7 @@
         <!-- Current: "bg-gray-50 text-indigo-600", Default: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50" -->
         <.link
           patch={~p"/admin/stories/#{@story.id}/passages/#{passage.id}"}
-          class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+          class={"group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6  #{if @current_passage && @current_passage.id == passage.id, do: "bg-gray-50 text-indigo-600", else: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"}"}
         >
           <span class="truncate"><%= passage.name %></span>
         </.link>

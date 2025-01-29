@@ -20,7 +20,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:name]} type="text" label="Name" />
-        <.input field={@form[:content]} type="textarea" label="Content" />
+        <.input field={@form[:content]} type="textarea" label="Content" rows="10" />
         <.input
           field={@form[:status]}
           type="select"
