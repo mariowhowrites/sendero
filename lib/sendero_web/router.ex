@@ -27,7 +27,6 @@ defmodule SenderoWeb.Router do
     # live "/stories/:id/edit", StoryLive.Index, :edit
 
     live "/stories/:id", StoryLive.Show, :show
-    live "/stories/:id/show/edit", StoryLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.
@@ -83,6 +82,7 @@ defmodule SenderoWeb.Router do
 
       live "/admin", AdminLive.Dashboard, :dashboard
       live "/admin/stories/:story_id", StoryLive.Edit, :edit
+      live "/admin/stories/:story_id/passages/new", StoryLive.Edit, :new_passage
       live "/admin/stories/:story_id/passages/:passage_id", StoryLive.Edit, :edit_passage
     end
   end

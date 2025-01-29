@@ -15,10 +15,20 @@ defmodule SenderoWeb.StoryLive.Edit do
      |> assign(:current_passage, Fiction.get_root_passage(story.id))}
   end
 
-  @impl true
   def handle_params(%{"story_id" => story_id, "passage_id" => passage_id}, _, socket) do
     passages = Fiction.get_passages_by_story_id(story_id)
     current_passage = passages |> Enum.find(&(&1.id == String.to_integer(passage_id)))
+
+    {:noreply,
+     socket
+     |> assign(:current_passage, current_passage)
+     |> stream(:passages, passages, reset: true)}
+  end
+
+  def handle_params(%{"story_id" => story_id}, _, socket)
+      when socket.assigns.live_action == :new_passage do
+    current_passage = %Fiction.Passage{}
+    passages = Fiction.get_passages_by_story_id(story_id)
 
     {:noreply,
      socket

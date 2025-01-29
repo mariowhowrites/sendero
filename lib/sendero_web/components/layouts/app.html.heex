@@ -23,13 +23,12 @@
           <li>
             <ul role="list" class="-mx-2 space-y-1">
               <li>
-                <!-- Current: "bg-gray-50 text-indigo-600", Default: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50" -->
                 <a
                   href="/admin"
                   class={"group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold #{if @active_tab == :dashboard, do: "bg-gray-50 text-indigo-600", else: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"}"}
                 >
                   <svg
-                    class="h-6 w-6 shrink-0 text-indigo-600"
+                    class="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
@@ -173,11 +172,6 @@
             <ul role="list" class="-mx-2 mt-2 space-y-1">
               <%= for {id, title} <- @story_sidebar_info do %>
                 <li>
-                  <!-- Current: "bg-gray-50 text-indigo-600", Default: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50" -->
-                  <%
-                    IO.inspect(@active_tab)
-                    IO.inspect(id)
-                   %>
                   <.link
                     navigate={~p"/admin/stories/#{id}"}
                     class={"group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold #{if @active_tab == {:edit, Integer.to_string(id)} or @active_tab == {:edit_passage, Integer.to_string(id) }, do: "bg-gray-50 text-indigo-600", else: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50"}"}
