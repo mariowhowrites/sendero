@@ -115,6 +115,10 @@ defmodule Sendero.Fiction do
     Story.changeset(story, attrs)
   end
 
+  def get_story_sidebar_info(user_id) do
+    Repo.all(from s in Story, where: s.author_id == ^user_id, select: {s.id, s.title})
+  end
+
   @doc """
   Gets a single passage.
 
@@ -234,7 +238,7 @@ defmodule Sendero.Fiction do
     })
   end
 
-    @doc """
+  @doc """
   Creates a story with its passages and links in a single transaction.
 
   ## Examples
@@ -249,25 +253,26 @@ defmodule Sendero.Fiction do
     Multi.new()
     |> Multi.insert(:story, Story.changeset(%Story{}, story_attrs))
     |> Multi.run(:passages, fn repo, %{story: story} ->
-      results = Enum.map(raw_passages, fn raw_passage ->
-        passage_attrs = %{
-          name: raw_passage.name,
-          content: raw_passage.content,
-          root: raw_passage.pid == story.start_node,
-          status: :draft,
-          story_id: story.id
-        }
+      results =
+        Enum.map(raw_passages, fn raw_passage ->
+          passage_attrs = %{
+            name: raw_passage.name,
+            content: raw_passage.content,
+            root: raw_passage.pid == story.start_node,
+            status: :draft,
+            story_id: story.id
+          }
 
-        %Passage{}
-        |> Passage.changeset(passage_attrs)
-        |> Ecto.Changeset.put_assoc(:story, story)
-        |> repo.insert()
-      end)
+          %Passage{}
+          |> Passage.changeset(passage_attrs)
+          |> Ecto.Changeset.put_assoc(:story, story)
+          |> repo.insert()
+        end)
 
       case Enum.split_with(results, fn
-        {:ok, _} -> true
-        {:error, _} -> false
-      end) do
+             {:ok, _} -> true
+             {:error, _} -> false
+           end) do
         {passages, []} -> {:ok, Enum.map(passages, fn {:ok, p} -> p end)}
         {_, errors} -> {:error, errors}
       end
@@ -275,27 +280,29 @@ defmodule Sendero.Fiction do
     |> Multi.run(:links, fn repo, %{passages: passages} ->
       passage_map = Map.new(passages, fn p -> {p.name, p} end)
 
-      results = passages
-      |> Enum.flat_map(fn passage ->
-        raw_passage = Enum.find(raw_passages, &(&1.name == passage.name))
-        Enum.map(raw_passage.links || [], fn {display, target} ->
-          destination = passage_map[target]
+      results =
+        passages
+        |> Enum.flat_map(fn passage ->
+          raw_passage = Enum.find(raw_passages, &(&1.name == passage.name))
 
-          %Link{}
-          |> Link.changeset(%{
-            title: display,
-            content: target,
-            origin_passage_id: passage.id,
-            destination_passage_id: destination && destination.id
-          })
-          |> repo.insert()
+          Enum.map(raw_passage.links || [], fn {display, target} ->
+            destination = passage_map[target]
+
+            %Link{}
+            |> Link.changeset(%{
+              title: display,
+              content: target,
+              origin_passage_id: passage.id,
+              destination_passage_id: destination && destination.id
+            })
+            |> repo.insert()
+          end)
         end)
-      end)
 
       case Enum.split_with(results, fn
-        {:ok, _} -> true
-        {:error, _} -> false
-      end) do
+             {:ok, _} -> true
+             {:error, _} -> false
+           end) do
         {links, []} -> {:ok, Enum.map(links, fn {:ok, l} -> l end)}
         {_, errors} -> {:error, errors}
       end

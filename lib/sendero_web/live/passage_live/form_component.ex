@@ -8,7 +8,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
     ~H"""
     <div>
       <.header>
-        <%= @passage.title %>
+        <%= @passage.name %>
         <:subtitle>Use this form to manage passage records in your database.</:subtitle>
       </.header>
 
@@ -19,7 +19,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:title]} type="text" label="Title" />
+        <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:content]} type="textarea" label="Content" />
         <.input
           field={@form[:status]}

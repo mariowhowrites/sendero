@@ -72,13 +72,18 @@ defmodule SenderoWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{SenderoWeb.UserAuth, :ensure_authenticated}] do
+      on_mount: [
+        {SenderoWeb.UserAuth, :ensure_authenticated},
+        SenderoWeb.UserLiveAuth,
+        SenderoWeb.Nav
+      ],
+      layout: {SenderoWeb.Layouts, :app} do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      live "/admin", AdminLive.Index, :dashboard
-      live "/admin/stories/:id", AdminLive.Index, :story_editor
-      live "/admin/settings", AdminLive.Index, :settings
+      live "/admin", AdminLive.Dashboard, :dashboard
+      live "/admin/stories/:story_id", StoryLive.Edit, :edit
+      live "/admin/stories/:story_id/passages/:passage_id", StoryLive.Edit, :edit_passage
     end
   end
 

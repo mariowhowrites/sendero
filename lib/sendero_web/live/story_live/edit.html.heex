@@ -1,10 +1,10 @@
 <main class="lg:pl-72">
-  <div class="xl:pl-96">
+  <div class="xl:pr-96">
     <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
       <.live_component
-        id={@current_passage.id || "new_passage"}
+        id={@current_passage && @current_passage.id || "new_passage"}
         module={SenderoWeb.PassageLive.FormComponent}
-        action={@live_action}
+        action={@current_passage && :edit || :new}
         story={@story}
         passage={@current_passage}
       />
@@ -12,7 +12,7 @@
   </div>
 </main>
 
-<aside class="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
+<aside class="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
   <h2 class="text-xl font-semibold mb-8"><%= @story.title %></h2>
 
   <%!-- <div class="flex flex-col gap-4" phx-update="stream" id="passages-index">
@@ -32,10 +32,10 @@
       <li id={dom_id}>
         <!-- Current: "bg-gray-50 text-indigo-600", Default: "text-gray-700 hover:text-indigo-600 hover:bg-gray-50" -->
         <.link
-          patch={~p"/stories/#{@story.id}/edit/#{passage.id}"}
+          patch={~p"/admin/stories/#{@story.id}/passages/#{passage.id}"}
           class="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
         >
-          <span class="truncate"><%= passage.title %></span>
+          <span class="truncate"><%= passage.name %></span>
         </.link>
       </li>
     <% end %>

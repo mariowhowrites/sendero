@@ -671,4 +671,11 @@ defmodule SenderoWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+
+  def team_icon(assigns) do
+    ~H"""
+    <.icon name="hero-users-solid" class="h-6 w-6" />
+    """
+  end
 end

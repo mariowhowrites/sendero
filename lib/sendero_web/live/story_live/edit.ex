@@ -4,35 +4,33 @@ defmodule SenderoWeb.StoryLive.Edit do
   alias Sendero.Fiction
 
   @impl true
-  def mount(params, session, socket) do
-    {:ok, socket, layout: {SenderoWeb.Layouts, :app}}
+  def mount(params, _session, socket) do
+    story = Fiction.get_story!(params["story_id"])
+    passages = Fiction.get_passages_by_story(story)
+
+    {:ok,
+     socket
+     |> assign(:story, story)
+     |> stream(:passages, passages, reset: true)
+     |> assign(:current_passage, Fiction.get_root_passage(story.id))}
   end
 
   @impl true
-  def handle_params(%{"id" => id} = params, _, socket) do
-    story = Fiction.get_story!(id)
-    passages = Fiction.get_passages_by_story(story)
-
-    current_passage =
-      case socket.assigns.live_action do
-        :new ->
-          %Fiction.Passage{
-            name: "New Passage",
-            content: "",
-            status: :draft,
-            root: false,
-            story: story
-          }
-
-        :edit ->
-          Fiction.get_passage!(params["passage_id"])
-      end
+  def handle_params(%{"story_id" => story_id, "passage_id" => passage_id}, _, socket) do
+    passages = Fiction.get_passages_by_story_id(story_id)
+    current_passage = passages |> Enum.find(&(&1.id == String.to_integer(passage_id)))
 
     {:noreply,
      socket
-     |> assign(:story, story)
-     |> stream(:passages, passages)
-     |> assign(:current_passage, current_passage)}
+     |> assign(:current_passage, current_passage)
+     |> stream(:passages, passages, reset: true)}
+  end
+
+  @impl true
+  def handle_params(params, _, socket) do
+    IO.inspect(params)
+
+    {:noreply, socket}
   end
 
   @impl true

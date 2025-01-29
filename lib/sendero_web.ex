@@ -52,7 +52,7 @@ defmodule SenderoWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {SenderoWeb.Layouts, :app},
+        layout: {SenderoWeb.Layouts, :public},
         container: {:div, class: "h-full"}
 
       on_mount SenderoWeb.UserLiveAuth
