@@ -5,6 +5,7 @@ defmodule SenderoWeb.StoryLive.Edit do
 
   @impl true
   def mount(params, _session, socket) do
+    IO.inspect(params)
     story = Fiction.get_story!(params["story_id"])
     passages = Fiction.get_passages_by_story(story)
 
@@ -15,7 +16,9 @@ defmodule SenderoWeb.StoryLive.Edit do
      |> assign(:current_passage, Fiction.get_root_passage(story.id))}
   end
 
-  def handle_params(%{"story_id" => story_id, "passage_id" => passage_id}, _, socket) do
+  def handle_params(%{"story_id" => story_id, "passage_id" => passage_id} = params, _, socket) do
+    IO.inspect(params)
+
     passages = Fiction.get_passages_by_story_id(story_id)
     current_passage = passages |> Enum.find(&(&1.id == String.to_integer(passage_id)))
 
@@ -38,8 +41,6 @@ defmodule SenderoWeb.StoryLive.Edit do
 
   @impl true
   def handle_params(params, _, socket) do
-    IO.inspect(params)
-
     {:noreply, socket}
   end
 

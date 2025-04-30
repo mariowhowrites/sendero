@@ -13,9 +13,6 @@ defmodule SenderoWeb.Nav do
   end
 
   defp handle_params(params, _url, socket) do
-    IO.inspect(socket.view)
-    IO.inspect(socket.assigns.live_action)
-
     active_tab =
       case {socket.view, socket.assigns.live_action} do
         {AdminLive.Index, :dashboard} -> :dashboard
@@ -23,8 +20,6 @@ defmodule SenderoWeb.Nav do
         {StoryLive.Edit, :edit_passage} -> {:edit_passage, params["story_id"]}
         _ -> :dashboard
       end
-
-    IO.inspect(active_tab)
 
     {:cont, socket |> assign(:active_tab, active_tab)}
   end
