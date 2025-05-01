@@ -10,7 +10,7 @@ defmodule SenderoWeb.StoryLive.Edit do
 
   @impl true
   def handle_params(%{"id" => id} = params, _, socket) do
-    story = Fiction.get_story!(id)
+    story = Fiction.Story.get!(id)
     passages = Fiction.get_passages_by_story(story)
 
     current_passage =

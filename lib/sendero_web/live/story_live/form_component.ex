@@ -1,7 +1,7 @@
 defmodule SenderoWeb.StoryLive.FormComponent do
   use SenderoWeb, :live_component
 
-  alias Sendero.Fiction
+  alias Sendero.Fiction.Story
 
   @impl true
   def render(assigns) do
@@ -32,7 +32,7 @@ defmodule SenderoWeb.StoryLive.FormComponent do
 
   @impl true
   def update(%{story: story} = assigns, socket) do
-    changeset = Fiction.change_story(story)
+    changeset = Story.changeset(story)
 
     {:ok,
      socket
@@ -44,7 +44,7 @@ defmodule SenderoWeb.StoryLive.FormComponent do
   def handle_event("validate", %{"story" => story_params}, socket) do
     changeset =
       socket.assigns.story
-      |> Fiction.change_story(story_params)
+      |> Story.changeset(story_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -55,7 +55,7 @@ defmodule SenderoWeb.StoryLive.FormComponent do
   end
 
   defp save_story(socket, :edit, story_params) do
-    case Fiction.update_story(socket.assigns.story, story_params) do
+    case Story.update(socket.assigns.story, story_params) do
       {:ok, story} ->
         notify_parent({:saved, story})
 
@@ -70,7 +70,7 @@ defmodule SenderoWeb.StoryLive.FormComponent do
   end
 
   defp save_story(socket, :new, story_params) do
-    case Fiction.create_story(story_params) do
+    case Story.create(story_params) do
       {:ok, story} ->
         notify_parent({:saved, story})
 

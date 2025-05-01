@@ -14,7 +14,7 @@ defmodule Sendero.FictionFixtures do
         description: "some description",
         title: "some title"
       })
-      |> Sendero.Fiction.create_story()
+      |> Sendero.Fiction.Story.create()
 
     story
   end
@@ -37,7 +37,7 @@ defmodule Sendero.FictionFixtures do
     story =
       case attrs[:story_id] do
         nil -> story_fixture()
-        _ -> Sendero.Fiction.get_story!(attrs[:story_id])
+        _ -> Sendero.Fiction.Story.get!(attrs[:story_id])
       end
 
     passage =
@@ -49,7 +49,7 @@ defmodule Sendero.FictionFixtures do
         story_id: story.id
       })
 
-    {:ok, passage} = Sendero.Fiction.add_root_passage(story, passage)
+    {:ok, passage} = Sendero.Fiction.create_root_passage(story, passage)
 
     passage
   end

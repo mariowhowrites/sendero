@@ -15,7 +15,7 @@ defmodule SenderoWeb.StoryLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:story, Fiction.get_story!(id))
+     |> assign(:story, Fiction.Story.get!(id))
      |> assign(:current_passage, parse_passage(starting_passage))
      |> assign(:history, [])}
   end

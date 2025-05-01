@@ -1,12 +1,11 @@
 defmodule SenderoWeb.StoryLive.Index do
   use SenderoWeb, :live_view
 
-  alias Sendero.Fiction
   alias Sendero.Fiction.Story
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :stories, Fiction.list_stories())}
+    {:ok, stream(socket, :stories, Story.all())}
   end
 
   @impl true
@@ -17,7 +16,7 @@ defmodule SenderoWeb.StoryLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Story")
-    |> assign(:story, Fiction.get_story!(id))
+    |> assign(:story, Story.get!(id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -39,8 +38,8 @@ defmodule SenderoWeb.StoryLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    story = Fiction.get_story!(id)
-    {:ok, _} = Fiction.delete_story(story)
+    story = Story.get!(id)
+    {:ok, _} = Story.delete(story)
 
     {:noreply, stream_delete(socket, :stories, story)}
   end

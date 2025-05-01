@@ -32,27 +32,27 @@ defmodule Sendero.Fiction.Importer.Twee do
     |> String.split("\n\n\n")
   end
 
-  def parse(":: StoryTitle" <> text, article) do
-    Map.put(article, :title, text |> String.trim())
+  def parse(":: StoryTitle" <> text, story) do
+    Map.put(story, :title, text |> String.trim())
   end
 
-  def parse(":: StoryData" <> text, article) do
-    Map.put(article, :metadata, text |> String.trim() |> Jason.decode!())
+  def parse(":: StoryData" <> text, story) do
+    Map.put(story, :metadata, text |> String.trim() |> Jason.decode!())
   end
 
-  def parse(text, article) do
+  def parse(text, story) do
     [header | content] = String.split(text, "\n", parts: 2)
 
     passage =
       %Passage{}
-      |> parse_passage_header(header)
-      |> parse_passage_content(content)
+      |> Map.merge(parse_passage_header(header))
+      |> Map.merge(parse_passage_content(content))
 
-    Map.put(article, :passages, [passage | article.passages])
+    Map.put(story, :passages, [passage | story.passages])
   end
 
   # format of passage headers is :: name [tags] {metadata}
-  def parse_passage_header(passage, header) do
+  def parse_passage_header(header) do
     # Extract name, tags, and metadata
     [name_and_tags | metadata_part] = String.split(header, "{", parts: 2)
     [name | tags_part] = String.split(name_and_tags, " [", parts: 2)
@@ -83,15 +83,15 @@ defmodule Sendero.Fiction.Importer.Twee do
       end
 
     # Update and return the passage map
-    Map.merge(passage, %{
+    %{
       name: name,
       tags: tags,
       metadata: metadata
-    })
+    }
   end
 
   # within the text content of `raw_content`, separate out any text surrounded by double brackets ([[ ]])
-  def parse_passage_content(passage, raw_content) do
+  def parse_passage_content(raw_content) do
     raw_content = List.to_string(raw_content)
 
     links =
@@ -100,9 +100,9 @@ defmodule Sendero.Fiction.Importer.Twee do
 
     content = Regex.replace(~r/\[\[(.*?)\]\]/, raw_content, "") |> String.trim()
 
-    Map.merge(passage, %{
+    %{
       content: content,
       links: links
-    })
+    }
   end
 end
