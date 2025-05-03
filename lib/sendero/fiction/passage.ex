@@ -1,7 +1,9 @@
 defmodule Sendero.Fiction.Passage do
-  alias Sendero.Fiction.{Link, Story}
+  alias Sendero.Fiction.{Link, Story, Passage}
+  alias Sendero.Repo
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
 
   schema "passages" do
     field :status, Ecto.Enum, values: [:draft, :active, :inactive]
@@ -16,9 +18,39 @@ defmodule Sendero.Fiction.Passage do
   end
 
   @doc false
-  def changeset(passage, attrs) do
+  def changeset(%Passage{} = passage, attrs \\ %{}) do
     passage
-    |> cast(attrs, [:name, :content, :status, :root])
-    |> validate_required([:name, :content, :status])
+    |> cast(attrs, [:name, :content, :status, :root, :story_id])
+    |> validate_required([:name, :content, :status, :story_id])
+  end
+
+  # CRUD
+
+  def get!(id), do: Repo.get!(Passage, id)
+
+  def create(attrs, repo \\ Repo) do
+    %Passage{}
+    |> changeset(attrs)
+    |> repo.insert()
+  end
+
+  def create_root(attrs) do
+    attrs
+    |> Map.put(:root, true)
+    |> create()
+  end
+
+  def update(%Passage{} = passage, attrs) do
+    passage
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete(%Passage{} = passage) do
+    Repo.delete(passage)
+  end
+
+  def all_by_story_id(story_id) do
+    Repo.all(from p in Passage, where: p.story_id == ^story_id)
   end
 end

@@ -1,7 +1,9 @@
 defmodule Sendero.Fiction.Link do
-  alias Sendero.Fiction.Passage
-  use Ecto.Schema
+  alias Sendero.Fiction.{Passage, Link}
+  alias Sendero.Repo
   import Ecto.Changeset
+  import Ecto.Query, warn: false
+  use Ecto.Schema
 
   schema "links" do
     field :title, :string
@@ -17,5 +19,17 @@ defmodule Sendero.Fiction.Link do
     link
     |> cast(attrs, [:title, :content, :origin_passage_id, :destination_passage_id])
     |> validate_required([:title, :content, :origin_passage_id, :destination_passage_id])
+  end
+
+  # CRUD
+
+  def create(attrs, repo \\ Repo) do
+    %Link{}
+    |> Link.changeset(attrs)
+    |> repo.insert()
+  end
+
+  def delete(%Link{} = link) do
+    Repo.delete(link)
   end
 end

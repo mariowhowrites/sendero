@@ -9,15 +9,20 @@ defmodule Sendero.Fiction.Importer.Wintermute do
   """
   def import_from_path(path, user_id) do
     with {:ok, html} <- File.read(path),
-         {:ok, story} <- import_from_html(html, user_id) do
-      story
+         {:ok, %{story: story, passages: _passages, links: _links}} <- import_from_html(html, user_id) do
+      {:ok, story.id}
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 
   def import_from_html(html, user_id) do
     with {:ok, document} <- Floki.parse_document(html),
-         {:ok, story_content} <- parse_story_from_document(document, user_id) do
-      Fiction.create_story_with_passages(story_content.story, story_content.passages)
+         {:ok, story_content} <- parse_story_from_document(document, user_id),
+         {:ok, prepared_data} <- prepare_story_data(story_content.story, story_content.passages) do
+      Fiction.create_story_with_passages(prepared_data)
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -34,6 +39,43 @@ defmodule Sendero.Fiction.Importer.Wintermute do
     end
   end
 
+  def prepare_story_data(story_attrs, raw_passages) do
+    # Prepare passage data
+    passages =
+      Enum.map(raw_passages, fn raw_passage ->
+        %{
+          name: raw_passage.name,
+          content: raw_passage.content,
+          root: raw_passage.pid == story_attrs.start_node,
+          status: :draft,
+        }
+      end)
+
+    # Create a map of passage names to their indices for link resolution
+    passage_index_map =
+      Map.new(Enum.with_index(passages), fn {passage, idx} -> {passage.name, idx} end)
+
+    # Prepare link data with passage indices
+    links =
+      Enum.flat_map(raw_passages, fn raw_passage ->
+        Enum.map(raw_passage.links || [], fn {display, target} ->
+          %{
+            title: display,
+            content: target,
+            origin_passage_index: passage_index_map[raw_passage.name],
+            destination_passage_index: passage_index_map[target]
+          }
+        end)
+      end)
+
+    {:ok,
+     %{
+       story: story_attrs,
+       passages: passages,
+       links: links
+     }}
+  end
+
   defp extract_story_data(document) do
     case Floki.find(document, "tw-storydata") do
       [story_element | _] ->
@@ -42,8 +84,6 @@ defmodule Sendero.Fiction.Importer.Wintermute do
         story_data = %{
           title: find_attribute(attributes, "name"),
           start_node: find_attribute(attributes, "startnode"),
-          creator: find_attribute(attributes, "creator"),
-          creator_version: find_attribute(attributes, "creator-version"),
           ifid: find_attribute(attributes, "ifid")
         }
 

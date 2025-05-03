@@ -4,212 +4,113 @@ defmodule Sendero.FictionTest do
   alias Sendero.Fiction
 
   describe "stories" do
-    alias Sendero.Fiction.Story
+    alias Sendero.Fiction.{Passage, Story}
 
     import Sendero.FictionFixtures
 
     @invalid_attrs %{description: nil, title: nil}
 
-    # test "list_stories/0 returns all stories" do
-    #   story = story_fixture()
-    #   assert Fiction.list_stories() == [story]
-    # end
+    test "creates a passage" do
+      user = user_fixture(%{})
+      story = story_fixture(%{author_id: user.id})
 
-    # test "get_story!/1 returns the story with given id" do
-    #   story = story_fixture()
-    #   assert Fiction.get_story!(story.id) == story
-    # end
+      passage_attrs = %{
+        name: "My Passage",
+        content: "This is a test passage",
+        status: :draft,
+        story_id: story.id
+      }
 
-    # test "create_story/1 with valid data creates a story" do
-    #   valid_attrs = %{description: "some description", title: "some title"}
+      assert {:ok, %Passage{} = passage} = Fiction.create_passage(passage_attrs)
+      assert passage.name == "My Passage"
+      assert passage.content == "This is a test passage"
+      assert passage.story_id == story.id
+      assert passage.status == :draft
 
-    #   assert {:ok, %Story{} = story} = Fiction.create_story(valid_attrs)
-    #   assert story.description == "some description"
-    #   assert story.title == "some title"
-    # end
-
-    # test "create_story/1 with invalid data returns error changeset" do
-    #   assert {:error, %Ecto.Changeset{}} = Fiction.create_story(@invalid_attrs)
-    # end
-
-    # test "update_story/2 with valid data updates the story" do
-    #   story = story_fixture()
-    #   update_attrs = %{description: "some updated description", title: "some updated title"}
-
-    #   assert {:ok, %Story{} = story} = Fiction.update_story(story, update_attrs)
-    #   assert story.description == "some updated description"
-    #   assert story.title == "some updated title"
-    # end
-
-    # test "update_story/2 with invalid data returns error changeset" do
-    #   story = story_fixture()
-    #   assert {:error, %Ecto.Changeset{}} = Fiction.update_story(story, @invalid_attrs)
-    #   assert story == Fiction.get_story!(story.id)
-    # end
-
-    # test "delete_story/1 deletes the story" do
-    #   story = story_fixture()
-    #   assert {:ok, %Story{}} = Fiction.delete_story(story)
-    #   assert_raise Ecto.NoResultsError, fn -> Fiction.get_story!(story.id) end
-    # end
-
-    # test "change_story/1 returns a story changeset" do
-    #   story = story_fixture()
-    #   assert %Ecto.Changeset{} = Fiction.change_story(story)
-    # end
-
-    # test "add_root_passage/2 adds the root_passage to the story" do
-    #   story = story_fixture()
-
-    #   valid_passage_attrs = %{
-    #     content: "some content",
-    #     status: :active,
-    #     title: "some title"
-    #   }
-
-    #   assert {:ok, %Sendero.Fiction.Passage{} = root_passage} = Fiction.add_root_passage(story, valid_passage_attrs)
-    #   assert root_passage.content == "some content"
-    #   assert root_passage.title == "some title"
-    #   assert root_passage.status == :active
-    #   assert story == root_passage.story
-    # end
-
-    # test "add_root_passage/2 with invalid data returns error changeset" do
-    #   story = story_fixture()
-
-    #   invalid_passage_attrs = %{
-    #     content: nil,
-    #     status: :active,
-    #     title: nil
-    #   }
-
-    #   assert {:error, %Ecto.Changeset{}} = Fiction.add_root_passage(story, invalid_passage_attrs)
-    # end
-
-    # test "add_destination_link/2 adds a destination link to the passage" do
-    #   passage = passage_fixture()
-
-    #   valid_link_attrs = %{
-    #     from_passage_id: passage.id,
-    #     content: "some content",
-    #     title: "some title"
-    #   }
-
-    #   assert {:ok, %Sendero.Fiction.Link{} = link} = Fiction.add_destination_link(passage, valid_link_attrs)
-    # end
-
-    #   test "import_story_from_twee/1 imports a story from a twee file" do
-    #     assert {:ok, %Story{} = story} =
-    #              Fiction.import_story_from_twee("test/support/fixtures/sample story.twee")
-
-    #     assert story.title == "sample story for great learning"
-    #     assert map_size(story) > 0
-
-    #     # Verify all passages were created
-    #     passages = Repo.preload(story, :passages).passages
-    #     assert length(passages) == 5
-
-    #     # Check specific passages
-    #     passage_1 = Enum.find(passages, fn passage -> passage.title == "Passage 1" end)
-    #     assert passage_1.content =~ "You see a boar in the woods."
-    #     assert passage_1.root == true
-
-    #     passage_2 = Enum.find(passages, fn passage -> passage.title == "run away" end)
-    #     assert passage_2.content =~ "You turn to run. The boar snorts and follows you"
-
-    #     # Verify links between passages
-    #     links =
-    #       Repo.all(
-    #         from l in Sendero.Fiction.Link,
-    #           where: l.origin_passage_id in ^Enum.map(passages, & &1.id)
-    #       )
-
-    #     # Total number of links in the sample story
-    #     assert length(links) == 4
-
-    #     # Check specific links
-    #     passage_1_links = Enum.filter(links, &(&1.origin_passage_id == passage_1.id))
-    #     assert length(passage_1_links) == 2
-    #     assert Enum.any?(passage_1_links, &(&1.destination_passage_id == passage_2.id))
-
-    #     # Verify the "climb a tree" passage is linked from "run away"
-    #     climb_tree_passage = Enum.find(passages, fn passage -> passage.title == "climb a tree" end)
-
-    #     assert Enum.any?(
-    #              links,
-    #              &(&1.origin_passage_id == passage_2.id and
-    #                  &1.destination_passage_id == climb_tree_passage.id)
-    #            )
-    #   end
-    # end
+      passage = Repo.preload(passage, :story)
+      assert passage.story.id == story.id
+      assert passage.story.title == story.title
+    end
 
     test "create_story_with_passages/2 creates a story with its passages and links" do
-      user = user_fixture(%{})
+      user = user_fixture()
 
       input = %{
+        links: [
+          %{
+            title: "run away",
+            content: "run away",
+            origin_passage_index: 0,
+            destination_passage_index: 1
+          },
+          %{
+            title: "try to pet it",
+            content: "try to pet it",
+            origin_passage_index: 0,
+            destination_passage_index: 2
+          },
+          %{
+            title: "keep running",
+            content: "keep running",
+            origin_passage_index: 1,
+            destination_passage_index: 3
+          },
+          %{
+            title: "climb a tree",
+            content: "climb a tree",
+            origin_passage_index: 1,
+            destination_passage_index: 4
+          }
+        ],
         story: %{
           title: "sample story for great learning",
-          author_id: user.id,
           start_node: "1",
-          creator: "Twine",
-          creator_version: "2.9.0",
+          author_id: user.id,
           ifid: "B85EACA2-E692-488E-9AF0-244B2E156D01"
         },
         passages: [
           %{
-            links: [{"run away", "run away"}, {"try to pet it", "try to pet it"}],
             name: "Chapter 1",
-            pid: "1",
-            position: %{y: 325, x: 700},
-            tags: ["tag1"],
-            content:
-              "You see a boar in the woods.\n\n[[run away]]\n\n[[try to pet it]]\n\n<img src=\"https://cdn.vox-cdn.com/thumbor/Hv25EhJs_sOcwYl04iARZmov9DM=/0x0:5260x6265/1825x1825/filters:focal(2210x2713:3050x3553):format(webp)/cdn.vox-cdn.com/uploads/chorus_image/image/73763238/DSC_6148.0.jpg\">\n\n"
+            status: :draft,
+            root: true,
+            content: "You see a boar in the woods.\n\n[[run away]]\n\n[[try to pet it]]"
           },
           %{
-            links: [
-              {"keep running", "keep running"},
-              {"climb a tree", "climb a tree"}
-            ],
             name: "run away",
-            pid: "2",
-            position: %{y: 450, x: 637},
-            tags: [],
+            status: :draft,
+            root: false,
             content:
               "You turn to run. The boar snorts and follows you\n\n[[keep running]]\n\n[[climb a tree]]"
           },
           %{
-            links: [],
             name: "try to pet it",
-            pid: "3",
-            position: %{y: 450, x: 775},
-            tags: ["tag1", "tag2"],
+            status: :draft,
+            root: false,
             content: "The boar purrs. You are now friends"
           },
           %{
-            links: [],
             name: "keep running",
-            pid: "4",
-            position: %{y: 575, x: 575},
-            tags: ["tag2"],
+            status: :draft,
+            root: false,
             content: "Haha you thought you could outrun a boar and now you are dead"
           },
           %{
-            links: [],
             name: "climb a tree",
-            pid: "5",
-            position: %{y: 575, x: 700},
-            tags: [],
+            status: :draft,
+            root: false,
             content: "that was kinda mean boars cant climb"
           }
         ]
       }
 
-      assert {:ok,
-              %{
-                story: %Fiction.Story{} = story,
-                passages: passages,
-                links: links
-              }} = Fiction.create_story_with_passages(input.story, input.passages)
+      assert {
+               :ok,
+               %{
+                 story: %Fiction.Story{} = story,
+                 passages: passages,
+                 links: links
+               }
+             } = Fiction.create_story_with_passages(input)
 
       assert length(passages) == 5
       assert Enum.all?(passages, &match?(%Fiction.Passage{}, &1))
@@ -217,4 +118,17 @@ defmodule Sendero.FictionTest do
       assert Enum.all?(links, &match?(%Fiction.Link{}, &1))
     end
   end
+
+  # describe "wings" do
+  #   alias Sendero.Fiction.{Wing, Story}
+
+  #   import Sendero.FictionFixtures
+
+  #   test "creating a story creates a default wing with the root passage" do
+  #     {passage, story} = passage_fixture()
+
+  #     assert wing.story_id == story.id
+  #     assert wing.status == :closed
+  #   end
+  # end
 end

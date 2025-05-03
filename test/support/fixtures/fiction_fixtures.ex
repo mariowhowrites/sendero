@@ -49,22 +49,22 @@ defmodule Sendero.FictionFixtures do
         story_id: story.id
       })
 
-    {:ok, passage} = Sendero.Fiction.create_root_passage(story, passage)
+    {:ok, passage} = Sendero.Fiction.Passage.create_root(passage)
 
-    passage
+    {passage, story}
   end
 
   def link_fixture(attrs \\ %{}) do
     origin_passage =
       case attrs[:origin_passage_id] do
         nil -> passage_fixture()
-        _ -> Sendero.Fiction.get_passage!(attrs[:origin_passage_id])
+        _ -> Sendero.Fiction.Passage.get!(attrs[:origin_passage_id])
       end
 
     destination_passage =
       case attrs[:destination_passage_id] do
         nil -> passage_fixture()
-        _ -> Sendero.Fiction.get_passage!(attrs[:destination_passage_id])
+        _ -> Sendero.Fiction.Passage.get!(attrs[:destination_passage_id])
       end
 
     link =

@@ -38,7 +38,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
 
   @impl true
   def update(%{passage: passage} = assigns, socket) do
-    changeset = Fiction.change_passage(passage)
+    changeset = Fiction.Passage.changeset(passage)
 
     {:ok,
      socket
@@ -50,7 +50,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
   def handle_event("validate", %{"passage" => passage_params}, socket) do
     changeset =
       socket.assigns.passage
-      |> Fiction.change_passage(passage_params)
+      |> Fiction.Passage.changeset(passage_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -61,7 +61,7 @@ defmodule SenderoWeb.PassageLive.FormComponent do
   end
 
   defp save_passage(socket, :edit, passage_params) do
-    case Fiction.update_passage(socket.assigns.passage, passage_params) do
+    case Fiction.Passage.update(socket.assigns.passage, passage_params) do
       {:ok, _passage} ->
         {:noreply, socket}
 
@@ -71,7 +71,11 @@ defmodule SenderoWeb.PassageLive.FormComponent do
   end
 
   defp save_passage(socket, :new, passage_params) do
-    case Fiction.create_passage(socket.assigns.story, passage_params) do
+    result = passage_params
+    |> Map.put(:story_id, socket.assigns.story.id)
+    |> Fiction.create_passage()
+
+    case result do
       {:ok, passage} ->
         notify_parent({:created, passage})
         {:noreply, socket}

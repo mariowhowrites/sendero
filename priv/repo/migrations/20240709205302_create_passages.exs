@@ -7,7 +7,8 @@ defmodule Sendero.Repo.Migrations.CreatePassages do
       add :content, :text
       add :status, :string
       add :root, :boolean, default: false
-      add :story_id, references(:stories, on_delete: :nothing)
+      add :story_id, references(:stories, on_delete: :delete_all)
+      add :wing_id, references(:wings, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end

@@ -9,62 +9,30 @@ defmodule Sendero.Fiction do
 
   alias Sendero.Fiction.{Passage, Link, Story}
 
-  @doc """
-  Gets a single passage.
+  def delete_story(story_id) do
+    story = Story.get!(story_id)
 
-  Raises `Ecto.NoResultsError` if the Passage does not exist.
+    story_id
+    |> Passage.all_by_story_id()
+    |> Enum.each(&delete_passage/1)
 
-  ## Examples
-
-      iex> get_passage!(123)
-      %Passage{}
-
-      iex> get_passage!(456)
-      ** (Ecto.NoResultsError)
-  """
-  def get_passage!(id), do: Repo.get!(Passage, id)
-
-  def get_passages_by_story(%Story{} = story) do
-    Repo.all(from c in Passage, where: c.story_id == ^story.id)
+    Story.delete(story)
   end
 
-  def create_passage(%Story{} = story, attrs) do
-    %Passage{}
-    |> Passage.changeset(attrs)
-    |> Ecto.Changeset.put_assoc(:story, story)
-    |> Repo.insert()
-  end
-
-  def update_passage(%Passage{} = passage, attrs) do
+  def delete_passage(passage) do
     passage
-    |> Passage.changeset(attrs)
-    |> Repo.update()
-  end
+    |> get_passage_links()
+    |> Enum.each(&Link.delete/1)
 
-  def change_passage(%Passage{} = passage, attrs \\ %{}) do
-    Passage.changeset(passage, attrs)
-  end
-
-  def create_root_passage(%Story{} = story, attrs) do
-    create_passage(story, Map.merge(attrs, %{root: true}))
+    Passage.delete(passage)
   end
 
   def get_root_passage(story_id) do
     Repo.one(from p in Passage, where: p.story_id == ^story_id and p.root == true)
   end
 
-  def get_passages_by_story_id(story_id) do
-    Repo.all(from p in Passage, where: p.story_id == ^story_id)
-  end
-
   def get_passage_by_link_text(story_id, link_text) do
     Repo.one(from p in Passage, where: p.story_id == ^story_id and p.name == ^link_text)
-  end
-
-  def create_link(attrs) do
-    %Link{}
-    |> Link.changeset(attrs)
-    |> Repo.insert()
   end
 
   def get_passage_links(%Passage{} = passage) do
@@ -97,7 +65,7 @@ defmodule Sendero.Fiction do
 
   defp create_passage_from_twee(story, raw_passage) do
     {:ok, passage} =
-      create_passage(story, %{
+      Passage.create(%{
         name: raw_passage.name,
         content: raw_passage.content,
         root: raw_passage.pid == story.start_node,
@@ -120,7 +88,7 @@ defmodule Sendero.Fiction do
   end
 
   defp create_link_between_passages(origin, destination, {display, target}) do
-    create_link(%{
+    Link.create(%{
       title: display,
       content: target,
       origin_passage_id: origin.id,
@@ -128,7 +96,56 @@ defmodule Sendero.Fiction do
     })
   end
 
-    @doc """
+  @doc """
+  Prepares story and passage data for database insertion by interpreting and validating the input.
+
+  ## Examples
+
+      iex> prepare_story_data(%{title: "My Story"}, [%{name: "Start", content: "Beginning...", pid: "start", links: []}])
+      {:ok, %{
+        story_attrs: %{title: "My Story"},
+        passages: [%{name: "Start", content: "Beginning...", root: true, status: :draft}],
+        links: [%{title: "Next", content: "Next", origin_passage_name: "Start", destination_passage_name: "Next"}]
+      }}
+  """
+  def prepare_story_data(story_attrs, raw_passages) do
+    # Prepare passage data
+    passages =
+      Enum.map(raw_passages, fn raw_passage ->
+        %{
+          name: raw_passage.name,
+          content: raw_passage.content,
+          root: raw_passage.pid == story_attrs.start_node,
+          status: :draft
+        }
+      end)
+
+    # Create a map of passage names to their indices for link resolution
+    passage_index_map =
+      Map.new(Enum.with_index(passages), fn {passage, idx} -> {passage.name, idx} end)
+
+    # Prepare link data with passage indices
+    links =
+      Enum.flat_map(raw_passages, fn raw_passage ->
+        Enum.map(raw_passage.links || [], fn {display, target} ->
+          %{
+            title: display,
+            content: target,
+            origin_passage_index: passage_index_map[raw_passage.name],
+            destination_passage_index: passage_index_map[target]
+          }
+        end)
+      end)
+
+    {:ok,
+     %{
+       story_attrs: story_attrs,
+       passages: passages,
+       links: links
+     }}
+  end
+
+  @doc """
   Creates a story with its passages and links in a single transaction.
 
   ## Examples
@@ -139,57 +156,42 @@ defmodule Sendero.Fiction do
       iex> create_story_with_passages(%{}, [])
       {:error, :story, %Ecto.Changeset{}, %{}}
   """
-  def create_story_with_passages(story_attrs, raw_passages) do
+  def create_story_with_passages(%{story: story_attrs, passages: passages, links: links}) do
     Multi.new()
     |> Multi.insert(:story, Story.changeset(%Story{}, story_attrs))
     |> Multi.run(:passages, fn repo, %{story: story} ->
-      results = Enum.map(raw_passages, fn raw_passage ->
-        passage_attrs = %{
-          name: raw_passage.name,
-          content: raw_passage.content,
-          root: raw_passage.pid == story.start_node,
-          status: :draft,
-          story_id: story.id
-        }
-
-        %Passage{}
-        |> Passage.changeset(passage_attrs)
-        |> Ecto.Changeset.put_assoc(:story, story)
-        |> repo.insert()
-      end)
+      results =
+        Enum.map(passages, fn passage_attrs ->
+          Passage.create(Map.put(passage_attrs, :story_id, story.id), repo)
+        end)
 
       case Enum.split_with(results, fn
-        {:ok, _} -> true
-        {:error, _} -> false
-      end) do
+             {:ok, _} -> true
+             {:error, _} -> false
+           end) do
         {passages, []} -> {:ok, Enum.map(passages, fn {:ok, p} -> p end)}
         {_, errors} -> {:error, errors}
       end
     end)
     |> Multi.run(:links, fn repo, %{passages: passages} ->
-      passage_map = Map.new(passages, fn p -> {p.name, p} end)
-
-      results = passages
-      |> Enum.flat_map(fn passage ->
-        raw_passage = Enum.find(raw_passages, &(&1.name == passage.name))
-        Enum.map(raw_passage.links || [], fn {display, target} ->
-          destination = passage_map[target]
-
-          %Link{}
-          |> Link.changeset(%{
-            title: display,
-            content: target,
-            origin_passage_id: passage.id,
-            destination_passage_id: destination && destination.id
-          })
-          |> repo.insert()
+      results =
+        links
+        |> Enum.map(fn link_attrs ->
+          Link.create(
+            %{
+              title: link_attrs.title,
+              content: link_attrs.content,
+              origin_passage_id: Enum.at(passages, link_attrs.origin_passage_index).id,
+              destination_passage_id: Enum.at(passages, link_attrs.destination_passage_index).id
+            },
+            repo
+          )
         end)
-      end)
 
       case Enum.split_with(results, fn
-        {:ok, _} -> true
-        {:error, _} -> false
-      end) do
+             {:ok, _} -> true
+             {:error, _} -> false
+           end) do
         {links, []} -> {:ok, Enum.map(links, fn {:ok, l} -> l end)}
         {_, errors} -> {:error, errors}
       end

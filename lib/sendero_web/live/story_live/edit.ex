@@ -1,7 +1,7 @@
 defmodule SenderoWeb.StoryLive.Edit do
   use SenderoWeb, :live_view
 
-  alias Sendero.Fiction
+  alias Sendero.Fiction.{Passage, Story}
 
   @impl true
   def mount(params, session, socket) do
@@ -10,13 +10,13 @@ defmodule SenderoWeb.StoryLive.Edit do
 
   @impl true
   def handle_params(%{"id" => id} = params, _, socket) do
-    story = Fiction.Story.get!(id)
-    passages = Fiction.get_passages_by_story(story)
+    story = Story.get!(id)
+    passages = Passage.all_by_story_id(story.id)
 
     current_passage =
       case socket.assigns.live_action do
         :new ->
-          %Fiction.Passage{
+          %Passage{
             name: "New Passage",
             content: "",
             status: :draft,
@@ -25,7 +25,7 @@ defmodule SenderoWeb.StoryLive.Edit do
           }
 
         :edit ->
-          Fiction.get_passage!(params["passage_id"])
+          Passage.get!(params["passage_id"])
       end
 
     {:noreply,
